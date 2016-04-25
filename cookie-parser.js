@@ -406,7 +406,10 @@ if (!('window' in this)) {
         this.cookies = cookies.cookies;
         return;
       }
-      // delete cookies from this.cookies that has the same name as new ones
+      var foreignDomain = cookies.uri ? cookies.uri.domain() : null;
+      var foreignPath = cookies.url ? this._getPath(cookies.url) : null;
+      // delete cookies from this.cookies that has the same name as new ones,
+      // but are domain/path match
       var tLength = this.cookies.length - 1;
       var newCookies = cookies.cookies;
       var nLength = newCookies.length;
@@ -415,6 +418,14 @@ if (!('window' in this)) {
         for (var j = 0; j < nLength; j++) {
           var nName = newCookies[j].name;
           if (nName === tName) {
+            if (!foreignDomain || !this._matchDomain(foreignDomain)) {
+              // This is cookie for a different domain. Don't override.
+              continue;
+            }
+            if (!foreignPath || !this._matchPath(foreignPath)) {
+              // This is cookie for a different path. Don't override.
+              continue;
+            }
             let removed = this.cookies.splice(i, 1);
             newCookies[j].created = removed[0].created;
             break;
