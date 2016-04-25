@@ -1,0 +1,24 @@
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Cookie Parser Tests</title>
+  <link href="../bower_components/mocha/mocha.css" rel="stylesheet" />
+</head>
+<body>
+  <div id="mocha"></div>
+
+  <script src="../bower_components/chai/chai.js"></script>
+  <script src="../bower_components/mocha/mocha.js"></script>
+
+  <script src="../bower_components/uri.js/src/URI.js"></script>
+  <script src="../cookie-parser.js"></script>
+
+  <script>mocha.setup('tdd')</script>
+  <script src="test.cookies-basic.js"></script>
+  <script>
+    mocha.checkLeaks();
+    // mocha.globals();
+    mocha.run();
+  </script>
+</body>
+</html>

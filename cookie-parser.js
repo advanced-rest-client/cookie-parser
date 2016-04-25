@@ -1,5 +1,12 @@
-(function() {
+var isNode = false;
+if (!('window' in this)) {
+  isNode = true;
+}
+(function(isNode) {
   'use strict';
+  if (isNode) {
+    var URI = require('urijs');
+  }
   /*******************************************************************************
    * Copyright 2016 Pawel Psztyc, The ARC team
    *
@@ -28,9 +35,9 @@
      *
      * @param {Stirng} name Cookie name
      * @param {Stirng} value Cookie value
-     * @param {Object} attrs Additional cookie attributes.
+     * @param {Object} opts Additional cookie attributes.
      */
-    constructor(name, value, attrs) {
+    constructor(name, value, opts) {
       if (!fieldContentRegExp.test(name)) {
         throw new TypeError('Argument `name` is invalid');
       }
@@ -46,37 +53,126 @@
         throw new TypeError('Option `domain` is invalid');
       }
 
-      if (!value) {
-        this.expires = new Date(0);
-      }
+      Object.defineProperty(this, 'max-age', {
+        configurable: true,
+        enumerable: true,
+        get: function() { return this._maxAge; },
+        set: function(v) { this.maxAge = v; }
+      });
 
+      opts = opts || {};
+
+      this._expires = 0;
+      this._domain = undefined;
+      this._maxAge = undefined;
       this.name = name;
       this.value = value || '';
-      for (let key in attrs) {
-        this[key] = attrs[key];
+      this.created = Date.now();
+      this.lastAccess = this.created;
+
+      if ('max-age' in opts) {
+        this.maxAge = opts['max-age'];
+      } else if ('expires' in opts) {
+        this.expires = opts.expires;
+      } else {
+        this.persistent = false;
+        // see http://stackoverflow.com/a/11526569/1127848
+        this._expires = new Date(8640000000000000).getTime();
+      }
+
+      if ('domain' in opts) {
+        this.domain = opts.domain;
+      } else {
+        this.hostOnly = false;
+      }
+      if ('path' in opts) {
+        this.path = opts.path;
+      }
+      if ('secure' in opts) {
+        this.secure = opts.secure;
+      }
+
+      if ('httpOnly' in opts) {
+        this.httpOnly = opts.httpOnly;
       }
     }
 
-    toString() {
-        return this.name + '=' + this.value;
+    set maxAge(max) {
+      max = Number(max);
+      if (max !== max) {
+        return;
       }
-      /**
-       * Returns a Cookie as a HTTP header string.
-       */
+      this._maxAge = max;
+      if (max <= 0) {
+        // see http://stackoverflow.com/a/11526569/1127848
+        this._expires = new Date(8640000000000000).getTime();
+      } else {
+        var now = Date.now();
+        now += (max * 1000);
+        this._expires = now;
+      }
+      this.persistent = true;
+    }
+
+    get maxAge() {
+      return this['max-age'];
+    }
+
+    set expires(expires) {
+      if (expires instanceof Date) {
+        expires = expires.getTime();
+      } else if (typeof expires === 'string') {
+        let tmp = new Date(expires);
+        if (tmp.toString() === 'Invalid Date') {
+          expires = 0;
+        } else {
+          expires = tmp.getTime();
+        }
+      }
+      this._expires = expires;
+      this.persistent = true;
+    }
+
+    get expires() {
+      return this._expires;
+    }
+
+    set domain(domain) {
+      this._domain = domain;
+      if (!domain) {
+        this.hostOnly = false;
+      } else {
+        this.hostOnly = true;
+      }
+    }
+
+    get domain() {
+      return this._domain;
+    }
+    /**
+     * Converts the cookie to the `name=value` string.
+     */
+    toString() {
+      return this.name + '=' + this.value;
+    }
+    /**
+     * Returns a Cookie as a HTTP header string.
+     */
     toHeader() {
       var header = this.toString();
-      if (this.expires && !(this.expires instanceof Date)) {
-        this.expires = new Date(this.expires);
-        if (this.expires.toString() === 'Invalid Date') {
-          this.expires = new Date(0);
+      var expires;
+      if (this._expires) {
+        expires = new Date(this._expires);
+        if (expires.toString() === 'Invalid Date') {
+          expires = new Date(0);
         }
       }
 
       if (this.path) {
         header += '; path=' + this.path;
       }
-      if (this.expires) {
-        header += '; expires=' + this.expires.toUTCString();
+      if (expires) {
+        header += '; expires=' + expires.toUTCString();
       }
       if (this.domain) {
         header += '; domain=' + this.domain;
@@ -105,29 +201,19 @@
         cookie = '';
       }
       /**
-       * A HTTP cookie string.
-       *
-       * @type String
-       */
-      this._cookie = cookie;
-      /**
        * A list of parsed cookies.
        *
        * @type {Array<Cookie>}
        */
-      this.cookies = this.parse(cookie);
-      /**
-       * Cached RegExp objects.
-       *
-       * @type RegExp
-       */
-      this.cache = {};
+      this.cookies = Cookies.parse(cookie);
       /**
        * A base URL for this object.
        *
        * @type {String}
        */
       this.url = url;
+
+      this._fillCookieAttributes();
     }
 
     set url(url) {
@@ -143,8 +229,13 @@
     get url() {
       return this._url;
     }
-
-    parse(cookies) {
+    /**
+     * Parses a cookie string to a list of Cookie objects.
+     *
+     * @param {String} cookies A HTTP cookie string
+     * @return {Array<Cookie>} List of parsed cookies.
+     */
+    static parse(cookies) {
       var cookieParts = ['path', 'domain', 'max-age', 'expires', 'secure', 'httponly'];
       var list = [];
       if (!cookies || !cookies.trim()) {
@@ -155,20 +246,53 @@
         if (parts.length === 0) {
           return;
         }
-        let name = decodeURIComponent(parts[0].trim()).toLowerCase();
+        let name = decodeURIComponent(parts[0].trim());
         if (!name) {
           return;
         }
+        let lowerName = name.toLowerCase();
         let value = parts.length > 1 ? decodeURIComponent(parts[1].trim()) : null;
-        if (cookieParts.indexOf(name.toLowerCase()) !== -1) {
+        // if this is an attribute of previous cookie, set it for last added cookie.
+        if (cookieParts.indexOf(lowerName) !== -1) {
           if (list.length - 1 >= 0) {
             list[list.length - 1][name] = value;
           }
         } else {
-          list.push(new Cookie(name, value));
+          try {
+            list.push(new Cookie(name, value));
+          } catch (e) {
+            console.warn('Cookie can not be created', e);
+          }
         }
       });
       return list;
+    }
+    /**
+     * Clients must fill `path` and `domain` attribute if not set by the server to match current
+     * request url.
+     */
+    _fillCookieAttributes() {
+      if (!this.uri) {
+        return;
+      }
+      var domain = this.uri.domain();
+      if (!domain) {
+        return;
+      } else {
+        domain = domain.toLowerCase();
+      }
+      var path = this._getPath(this.url);
+      this.cookies.forEach((cookie) => {
+        if (!cookie.path) {
+          cookie.path = path;
+        }
+        let cDomain = cookie.domain;
+        if (!cDomain) {
+          cookie.domain = domain;
+          // point 6. of https://tools.ietf.org/html/rfc6265#section-5.3
+          cookie.hostOnly = true;
+        }
+      });
     }
 
     /**
@@ -178,16 +302,13 @@
      * @return {Cookie} A Cookie object or null.
      */
     get(name) {
-      if (!name || !this._cookie) {
-        return null;
+      var cookies = this.cookies;
+      for (let i = 0, len = cookies.length; i < len; i++) {
+        if (cookies[i].name === name) {
+          return cookies[i];
+        }
       }
-      var match = this._cookie.match(this.getPattern(name));
-      if (!match) {
-        return null;
-      }
-      var value = match[1];
-
-      return value;
+      return null;
     }
     /**
      * Adds a cookie to the list of cookies.
@@ -198,26 +319,36 @@
      */
     set(name, value, opts) {
       var cookie = new Cookie(name, value, opts);
-      var cookies = this.cookies.filter((c) => c.indexOf(cookie.name + '=') !== 0);
-      cookies.push(cookie.toHeader());
+      var cookies = this.cookies.filter((c) => c.name !== name);
+      cookies.push(cookie);
       this.cookies = cookies;
-      this._cookie = cookies.join('; ');
-    }
-    // returns (and cache) regexp for cookie to search for.
-    getPattern(name) {
-      if (this.cache[name]) {
-        return this.cache[name];
-      }
-      this.cache[name] = new RegExp('(?:^|;) *' + name.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&') +
-        '=([^;]*)');
-      return this.cache[name];
     }
 
-    toHeader() {
-      return this.cookies.join('; ');
+    /**
+     * Returns a string that can be used in a HTTP header value for Cookie.
+     * The structure of the cookie string depends on if you want to send a cookie from the server
+     * to client or other way around.
+     * When you want to send the `Cookie` header to server set `toServer` argument to true. Then it
+     * will produce only `name=value;` string. Otherwise it will be the `Set-Cookie` header value
+     * containing all other cookies properties.
+     *
+     * @param {Boolean} toServer True if produced string is to be used with `Cookie` header
+     */
+    toString(toServer) {
+      let parts = [];
+      if (toServer) {
+        this.cookies.forEach((cookie) => {
+          parts.push(cookie.toString());
+        });
+      } else {
+        this.cookies.forEach((cookie) => {
+          parts.push(cookie.toHeader());
+        });
+      }
+      return parts.join('; ');
     }
     /**
-     * Remove cookies from `this.cookies` that has been set for different domain.
+     * Remove cookies from `this.cookies` that has been set for different domain and path.
      * This function has no effect if the URL is not set.
      *
      * This function follows an alghoritm defined in https://tools.ietf.org/html/rfc6265 for
@@ -248,7 +379,7 @@
           cookie.hostOnly = true;
           return true;
         }
-        var res = this._matchDomain(cDomain);
+        var res = this._matchDomain(cDomain) && this._matchPath(cookie.path);
         if (!res) {
           removed.push(cookie);
         }
@@ -266,15 +397,15 @@
      * @param {Cookies} cookies An Cookies object with newest cookies.
      */
     merge(cookies) {
-      if (!cookies || !!cookies.cookies || cookies.cookies.length === 0) {
+      if (!cookies || !cookies.cookies || cookies.cookies.length === 0) {
         return;
       }
       if (!this.cookies || this.cookies.length === 0) {
-        this.cookies = cookies;
+        this.cookies = cookies.cookies;
         return;
       }
       // delete cookies from this.cookies that has the same name as new ones
-      var tLength = this.cookies.length;
+      var tLength = this.cookies.length - 1;
       var newCookies = cookies.cookies;
       var nLength = newCookies.length;
       for (var i = tLength; i >= 0; i--) {
@@ -282,13 +413,14 @@
         for (var j = 0; j < nLength; j++) {
           var nName = newCookies[j].name;
           if (nName === tName) {
-            this.cookies.splice(i, 1);
+            let removed = this.cookies.splice(i, 1);
+            newCookies[j].created = removed[0].created;
             break;
           }
         }
       }
       // Do not re-set cookies that values are not set.
-      for (i = nLength; i >= 0; i--) {
+      for (i = nLength - 1; i >= 0; i--) {
         var nValue = newCookies[i].value;
         if (!nValue || !nValue.trim || !nValue.trim()) {
           newCookies.splice(i, 1);
@@ -386,7 +518,7 @@
      * @param {String} cookieDomain A domain received in the cookie.
      * @return {Boolean} True if domains matches.
      */
-    matchDomain(cookieDomain) {
+    _matchDomain(cookieDomain) {
       if (!this.uri) {
         return false;
       }
@@ -430,8 +562,11 @@
       return expired;
     }
   }
-
-  window.Cookies = Cookies;
-  window.Cookie = Cookie;
-
-})();
+  if (!isNode) {
+    window.Cookies = Cookies;
+    window.Cookie = Cookie;
+  } else {
+    module.exports.Cookies = Cookies;
+    module.exports.Cookie = Cookie;
+  }
+})(isNode);

@@ -7,6 +7,7 @@
     "lint": "gulp lint"
   },
   "devDependencies": {
+    "chai": "^3.5.0",
     "conventional-github-releaser": "^1.1.1",
     "gulp": "^3.8.5",
     "gulp-bump": "^2.1.0",
@@ -20,10 +21,14 @@
     "gulp-load-plugins": "^1.1.0",
     "gulp-util": "^3.0.7",
     "jshint-stylish": "^2.0.0",
-    "run-sequence": "^1.1.5"
+    "run-sequence": "^1.1.5",
+    "should": "^8.3.1"
   },
   "engines": {
     "node": ">=0.10.0"
   },
-  "private": false
+  "private": false,
+  "dependencies": {
+    "urijs": "^1.17.1"
+  }
 }

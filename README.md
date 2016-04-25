@@ -1,125 +1,111 @@
-# Socket fetch
+# Cookie parser
+A cookie parser for JavaScript HTTP clients written in ES6.
 
-The HTTP client transport based on [chrome.sockets.tcp] API.
+This library is a part of the [Advanced Rest Client] project.
 
 ## Getting started
 Bower the library
 ```
-bower install socket-fetch
+bower install jarrodek/cookie-parser
 ```
 And import it into your project using web components.
 ```html
-<link rel="import" href="bower-components/socket-fetch/socket-fetch.html">
+<link rel="import" href="bower-components/cookie-parser/cookie-parser.html">
 ```
-Now you can use following classes:
-* ArcEventTarget
-* ArcEventSource
-* ArcRequest
-* ArcResponse
-* SocketFetch
-* HttpParser
-
-The Arc prefix comes from [Advanced Rest Client] project.
+Now you can use the following classes:
+* Cookie
+* Cookies
 
 ## usage
 
-Basically you need a resource you want to fetch:
-```
-var url = 'http://www.google.com';
-```
-You can set up some headers if you wish.
-This implementation will not set any default headers so if you don't do it the request will not contain them.
-```
-var headers = {
-  'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-  'Accept-Encoding':'gzip, deflate, sdch',
-  'User-Agent':'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2652.0 Safari/537.36'
-};
-```
-By default the implementation will use `GET` method and will follow redirects.
-```
-var init = {
-  'method': 'GET',
-  'headers': new Headers(headers),
-  'redirect': 'follow'
-};
-```
-And finally you just need to fetch the resource:
-```
-var connection = new SocketFetch(url, opts);
-connection.fetch()
-.then((response) => {
-  if (response.ok) {
-    response.text().then((result) => {
-      console.log('Fetch result', result);
-    })
-    .catch((cause) => {
-      console.error('Error during fetch', cause);
-    });
-  }
-})
-.catch((cause) => {
-   console.error('Error during fetch', cause);
-});
-```
+The **Cookie** class represents a single cookie object. The **Cookies** class represents a Cookies
+collection and parser.
 
-If you want to send data use `body` property in `init` object:
-```
-var payload = JSON.stringify({
-  'test': 'request'
-});
-var headers = {
-  'Content-Type': 'application/json',
-  'Content-Length': payload.length
-};
-var init = {
-  'method': 'POST',
-  'headers': new Headers(headers),
-  'body': payload
-};
-```
-You can send body of type of Blob, BufferSource, FormData, URLSearchParams, or String.
-
-## ArcRequest
-The ArcRequest class is similar to JavaScript's Request class. You can initialize it the same way as regular Request class.
-
-### Initialization
-Initialize as Request object. The first parameter can be `String`, `Request` or `ArcRequest` object.
-Second argument may have following options:
-
-| Name | Type | Description | Default |
-| --- | --- | --- | --- |
-| method | String | The request method, e.g., GET, POST. | `GET` |
-| headers | Headers or Object | Any headers you want to add to your request, contained within a Headers object or an object literal with key value pairs. Note that the library will not generate default headers. If none headers are passed it will not send headers in the request. | _none_ |
-| body | Blob, BufferSource, FormData, URLSearchParams, or String | Any body that you want to add to your request. Note that the body will be removed if the request's method is either `GET` or `HEAD` | _none_ |
-| redirect | String | The redirect mode to use: follow or error. If follow is set the result will contain redairect information. | `follow` |
-| timeout | Number | A number of milliseconds for connection timeout. Note that the timer run at the moment when connection was established. | _none_ |
-
-
-## Bonus in ArcResponse
-Regular Response object will not contain all headers in the response. ArcResponse class however will return all received headers from the server - even the prohibited ones. Other properties and methods are inherited from the Response object.
-
-Additionally the ArcResponse will contain two custom fields:
-* redirects {Set<ArcResponse>} - A list of responses that lead to redirection
-* stats {Set<Object>} - Some stats about the request and response. It is the same as `timings` object in HAR 1.2 specification.
-
-## Import scripts (web workers)
-This library uses web workers. Sometimes it is necessary to change import path of the library.
-By default the script will look in the '/' path for web workers. However bower or combined scripts
-may have been placed in different location so `SocketFetchOptions.importUrl` should be set to
-the real path to locate a file.
-
-The decompress worker uses Zlib and Gzip library. It has hardcoded script import to '../zlib/bin/zlib_and_gzip.min.js'. It means that the script will be included from this path relatively to the web worker file location.
-In most cases the element will be placed in `bower_components` or `components` folder with other bower elements so it resolve paths correctly. However, if you concat JS files or move the element somewhere else it may be the problem.
-In this case you need to move decompression libraries accordingly.
+### Parsing cookies received from server
+Let say you received a value for `Set-Cookie` header. For example:
 
 ```
-/path/to/file/%s
+rememberme=1; domain=foo.com; path=/; ssid=Hy1t5e#oj21.876aak;
 ```
-Keep the %s. The script will replace it with corresponding file name.
 
-When importing the library as a web component it will guess the correct location of the file and will set up it for you. However if you have difficulties with paths feel free to set up paths on your own.
+Then you can parse this value to cookies array using the `Cookies` class:
+```javascript
+var parser = new Cookies(httpHeaderStr);
+```
+Now the `parser.cookies` property will contain a list of 2 cookies:
+* Cookie `rememberme` with value `1`, domain set to `foo.com` and path set to `/`.
+* Cookie `ssid` with value `Hy1t5e#oj21.876aak` only.
 
+If you not planing to do any operation on parsed cookies you can use a shortcut function:
+```
+var cookies = Cookies.parse(httpHeaderStr);
+```
 
-  [chrome.sockets.tcp]: https://developer.chrome.com/apps/sockets_tcp
+You can easily transform parser object to the HTTP string again using `toStrnig()` function:
+
+```javascript
+var cookieStr = parser.toString();
+```
+The `cookieStr` will back to the `rememberme=1; domain=foo.com; path=/; ssid=Hy1t5e#oj21.876aak;` string again.
+
+There is a difference if you'd like to send cookies from server to client and client > server. Server expects only name=value pairs where clients can accept more attributes.
+The `toString()` function can take one boolean attribute. If this attribute is truly then the returned string will only contain headers as a name=value pairs.
+From the example above, it will produce string as follows:
+```javascript
+var cookieStr = parser.toString(true);
+// rememberme=1; ssid=Hy1t5e#oj21.876aak
+```
+
+You can set any cookie property by just assigning it's value:
+```javascript
+parser.cookies[1].domain = 'bar.com';
+```
+
+## Operations on cookies
+If you need to perform any operation on cookies like filtering or merging, the `url` parameter for Cookies object must be set.
+The URL is a request URL (or base url) for the cookies. Most operations on cookies depends on the URL of the client (for example browser).
+For example, according to the [spec] the `domain` attribute for the cookie should be set by client if not set by the server. To be able to perform this operation parser needs to know what is the URL of the request.
+
+So to perform any operation construct a parser object like this:
+```javascript
+var parser = new Cookies(httpHeaderStr, 'http://bar.com/path');
+```
+In this scenario parsed cookies will have different properties:
+* Cookie `rememberme` with value `1`, domain set to `foo.com` and path set to `/`.
+* Cookie `ssid` with value `Hy1t5e#oj21.876aak`, domain set to `bar.com` and path set to `/`.
+
+Why second cookie has `/` path instead of `/path`? Because, according to the [spec], it is the same path. If the url's path would be a `/path/foo` then the `path` attribute would be `/path`
+
+### Filtering not domain-match or not path-match
+As you can see in the cookies above, the first cookie do not match the domain of the request. Clients are obligated to remove such cookies. For this with help comes a `filter()` function.
+
+```javascript
+var removed = parser.filter();
+```
+This function will result with empty list if the URL is not set.
+The `removed` array will contain a list of cookies that do not match current URL. `parser.cookies` will now only contains a cookies that match the domain and path.
+
+### Filtering expired cookies
+Similar to above, you can use `clearExpired()` function:
+```javascript
+var removed = parser.clearExpired();
+```
+
+## Merging cookies
+There is an algorithm in the [spec] about how to handle incoming cookie if the client already have matched cookie. Use `merge()` function for that.
+Let say you have `cookies` and `newCookies` object. The `newCookies` object represents a cookies that are newer than `cookies` (which e.g. comes from the client's database). You can set new cookies in `cookies` array by calling `merge()`:
+
+```javascript
+parser.merge(newCookies);
+```
+After calling this function:
+* All cookies that the name from new cookies exists in old cookies are removed from old cookies list
+* All new cookies that don't have a value (which is a "remove cookie" action) and exists in old list are removed from new list
+* New cookies are added to the old list
+* The `created` attribute (as defined in the [spec]) is copied from removed old cookies to new cookies.
+
+# License
+Whole [Advanced Rest Client] and related libraries is open source under Apache 2.0 license.
+
+  [spec]: https://tools.ietf.org/html/rfc6265
   [Advanced Rest Client]: https://github.com/jarrodek/ChromeRestClient
