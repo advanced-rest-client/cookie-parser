@@ -413,8 +413,10 @@ if (!('window' in this)) {
      * as defined in the https://tools.ietf.org/html/rfc6265.
      *
      * @param {Cookies} cookies An Cookies object with newest cookies.
+     * @param {String|Array?} copyKeys If set, it will try copy values for given keys from old
+     * object to the new one.
      */
-    merge(cookies) {
+    merge(cookies, copyKeys) {
       if (!cookies || !cookies.cookies || cookies.cookies.length === 0) {
         return;
       }
@@ -429,6 +431,8 @@ if (!('window' in this)) {
       var tLength = this.cookies.length - 1;
       var newCookies = cookies.cookies;
       var nLength = newCookies.length;
+      copyKeys = copyKeys ? copyKeys instanceof Array ? copyKeys : [copyKeys] : null;
+      var copyKeysLength = copyKeys ? copyKeys.length : 0;
       for (var i = tLength; i >= 0; i--) {
         var tName = this.cookies[i].name;
         for (var j = 0; j < nLength; j++) {
@@ -444,6 +448,14 @@ if (!('window' in this)) {
             }
             let removed = this.cookies.splice(i, 1);
             newCookies[j].created = removed[0].created;
+            if (copyKeys) {
+              for (let k = 0; k < copyKeysLength; k++) {
+                let key = copyKeys[k];
+                if (key in removed[0]) {
+                  newCookies[j][key] = removed[0][key];
+                }
+              }
+            }
             break;
           }
         }
