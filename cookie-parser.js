@@ -273,7 +273,7 @@ if (!('window' in this)) {
         // if this is an attribute of previous cookie, set it for last added cookie.
         if (cookieParts.indexOf(lowerName) !== -1) {
           if (list.length - 1 >= 0) {
-            list[list.length - 1][name] = value;
+            list[list.length - 1][lowerName] = value;
           }
         } else {
           try {
