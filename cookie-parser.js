@@ -4,8 +4,10 @@ if (!('window' in this)) {
 }
 (function(isNode) {
   'use strict';
-  if (isNode) {
-    var URI = require('urijs');
+  var URI = isNode ? require('urijs') : window.URI;
+
+  if (!URI) {
+    throw new Error('An URIjs library must be included.');
   }
   /*******************************************************************************
    * Copyright 2016 Pawel Psztyc, The ARC team
