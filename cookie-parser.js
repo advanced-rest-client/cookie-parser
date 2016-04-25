@@ -529,7 +529,8 @@ if (!('window' in this)) {
       if (hostPath === cookiePath) {
         return true;
       }
-      var index = cookiePath.indexOf(hostPath);
+      // var index = cookiePath.indexOf(hostPath);
+      var index = hostPath.indexOf(cookiePath);
       if (index === 0 && cookiePath[cookiePath.length - 1] === '/') {
         return true;
       }
