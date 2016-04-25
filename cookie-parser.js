@@ -184,6 +184,22 @@ if (!('window' in this)) {
       }
       return header;
     }
+
+    /**
+     * Override toJSON behaviour so it will eliminate
+     * all _* properies and replace it with a proper ones.
+     */
+    toJSON() {
+      var copy = Object.assign({}, this);
+      var keys = Object.keys(copy);
+      var under = keys.filter((key) => key.indexOf('_') === 0);
+      under.forEach((key) => {
+        let realKey = key.substr(1);
+        copy[realKey] = copy[key];
+        delete copy[key];
+      });
+      return copy;
+    }
   }
 
   /**
