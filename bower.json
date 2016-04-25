@@ -32,6 +32,7 @@
     "package.json",
     "gulpfile.js",
     "/test/",
-    "/tasks/"
+    "/tasks/",
+    "CONTRIBUTING.md"
   ]
 }
