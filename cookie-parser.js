@@ -533,6 +533,8 @@ if (!('window' in this)) {
       var index = hostPath.indexOf(cookiePath);
       if (index === 0 && cookiePath[cookiePath.length - 1] === '/') {
         return true;
+      } else if (index === 0 && cookiePath.indexOf('/', 1) === -1) {
+        return true;
       }
 
       if (index === 0) {
