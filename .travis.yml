@@ -4,5 +4,5 @@ before_script:
 - npm install -g chai
 node_js: stable
 script:
-- xvfb-run mocha
+- mocha
 dist: trusty
