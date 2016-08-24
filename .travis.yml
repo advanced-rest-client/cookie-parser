@@ -1,0 +1,8 @@
+language: node_js
+sudo: required
+before_script:
+- npm install -g chai
+node_js: stable
+script:
+- xvfb-run mocha
+dist: trusty
