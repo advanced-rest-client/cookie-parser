@@ -6,6 +6,7 @@
   "authors": [
     "Pawel Psztyc"
   ],
+  "main": "cookie-parser.html",
   "homepage": "https://github.com/jarrodek/cookie-parser",
   "repository": {
     "type": "git",
