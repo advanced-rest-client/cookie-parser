@@ -107,7 +107,8 @@ if (!('window' in this)) {
       this._maxAge = max;
       if (max <= 0) {
         // see http://stackoverflow.com/a/11526569/1127848
-        this._expires = new Date(8640000000000000).getTime();
+        // and https://tools.ietf.org/html/rfc6265#section-5.2.2
+        this._expires = new Date(-8640000000000000).getTime();
       } else {
         var now = Date.now();
         now += (max * 1000);

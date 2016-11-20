@@ -63,7 +63,7 @@ describe('Cookie parser - basics', function() {
       expect(cookie.expires).to.be.within(now + 100000, now + 101000);
       expect(cookie.persistent).to.equal(true, 'The persistent flag is not set to true');
       cookie.maxAge = 0;
-      expect(parser.cookies[0].expires).to.equal(8640000000000000, 'Do not set max date');
+      expect(parser.cookies[0].expires).to.equal(-8640000000000000, 'Do not set max date');
     });
 
     it('should set cookie header string', function() {
@@ -124,7 +124,7 @@ describe('Cookie parser - basics', function() {
         expect(removed).to.have.lengthOf(1);
         expect(removed[0].name).to.equal('ssid');
         done();
-      }, 2000);
+      }, 1200);
     });
   });
 
