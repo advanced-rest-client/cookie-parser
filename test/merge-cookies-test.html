@@ -1,0 +1,89 @@
+<!doctype html>
+<!--
+@license
+Copyright 2017 The Advanced REST client authors <arc@mulesoft.com>
+Licensed under the Apache License, Version 2.0 (the "License"); you may not
+use this file except in compliance with the License. You may obtain a copy of
+the License at
+http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+License for the specific language governing permissions and limitations under
+the License.
+-->
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+  <script src="../../web-component-tester/browser.js"></script>
+  <link rel="import" href="../cookie-parser.html">
+</head>
+
+<body>
+  <script>
+  /* global assert, Cookies */
+  suite('Parse cookies with base URL', function() {
+    this.timeout(2500);
+
+    var httpStr = 'rememberme=1; domain=foo.com;';
+    httpStr += ' path=/; ssid=Hy1t5e#oj21.876aak;';
+    var baseUrl = 'http://bar.com/';
+
+    test('should merge when no old cookies', function() {
+      var oldParser = new Cookies('', baseUrl);
+      var newParser = new Cookies(httpStr, baseUrl);
+      oldParser.merge(newParser);
+      assert.lengthOf(oldParser.cookies, 2);
+    });
+
+    test('should merge when no new cookies, no old cookies', function() {
+      var oldParser = new Cookies('', baseUrl);
+      var newParser = new Cookies('', baseUrl);
+      oldParser.merge(newParser);
+      assert.lengthOf(oldParser.cookies, 0);
+    });
+
+    test('should merge when no new cookies', function() {
+      var oldParser = new Cookies(httpStr, baseUrl);
+      var newParser = new Cookies('',baseUrl);
+      oldParser.merge(newParser);
+      assert.lengthOf(oldParser.cookies, 2);
+    });
+
+    test('should merge different cookies', function() {
+      var oldParser = new Cookies(httpStr, baseUrl);
+      var newParser = new Cookies('test=value', baseUrl);
+      oldParser.merge(newParser);
+      assert.lengthOf(oldParser.cookies, 3);
+    });
+
+    test('should merge same cookies', function(done) {
+      var pastCookies = new Cookies(httpStr, baseUrl);
+      setTimeout(function() {
+        var oldCookieCreationTime = pastCookies.cookies[1].created;
+        var oldCookieLastAccessTime = pastCookies.cookies[1].lastAccess;
+        var newParser = new Cookies('ssid=abc', baseUrl);
+        pastCookies.merge(newParser);
+        assert.lengthOf(pastCookies.cookies, 2, 'Old cookies are replaced');
+        assert.equal(pastCookies.cookies[1].created, oldCookieCreationTime,
+          'New cookie have old\'s creation time');
+        assert.notEqual(pastCookies.cookies[1].lastAccess, oldCookieLastAccessTime,
+          'New cookie should not have old\'s last access time');
+        done();
+      }, 1000);
+    });
+
+    test('should have new cookie value', function() {
+      var oldParser = new Cookies(httpStr, baseUrl);
+      var newParser = new Cookies('ssid=abc', baseUrl);
+      oldParser.merge(newParser);
+      assert.equal(oldParser.cookies[1].value, 'abc');
+    });
+  });
+  </script>
+</body>
+
+</html>

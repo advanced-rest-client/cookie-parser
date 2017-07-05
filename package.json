@@ -1,1 +1,22 @@
-{"name":"cookie-parser","version":"1.0.14","license":"LICENSE","description":"A javascript cookie parser for javascript HTTP clients.","scripts":{"serve":"node_modules/.bin/polymer serve","lint":"node_modules/.bin/polymer lint cookie-parser.html","test":"./node_modules/.bin/mocha","deps":"npm install --quiet && bower install --quiet","update-deps":"npm update --quiet && bower update --quiet"},"devDependencies":{"chai":"^3.5.0","mocha":"^3.1.2","polymer-cli":"^0.17.0","should":"^8.3.1"},"engines":{"node":">=0.10.0"},"private":false,"dependencies":{"urijs":"^1.17.1"}}
+{
+  "name": "cookie-parser",
+  "version": "1.0.14",
+  "license": "LICENSE",
+  "description": "A javascript cookie parser for javascript HTTP clients.",
+  "scripts": {
+    "test-sauce": "node_modules/.bin/polymer test --plugin sauce --job-name \"raml-json-enhance:local-test\"",
+    "test": "node_modules/.bin/polymer test --plugin local",
+    "deps": "npm install --quiet && bower install --quiet",
+    "update-deps": "npm update --quiet && bower update --quiet"
+  },
+  "devDependencies": {
+    "polymer-cli": "^1.2.0"
+  },
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "private": false,
+  "dependencies": {
+    "urijs": "^1.17.1"
+  }
+}

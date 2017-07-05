@@ -1,0 +1,107 @@
+<!doctype html>
+<!--
+@license
+Copyright 2017 The Advanced REST client authors <arc@mulesoft.com>
+Licensed under the Apache License, Version 2.0 (the "License"); you may not
+use this file except in compliance with the License. You may obtain a copy of
+the License at
+http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+License for the specific language governing permissions and limitations under
+the License.
+-->
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+  <script src="../../web-component-tester/browser.js"></script>
+  <link rel="import" href="../cookie-parser.html">
+</head>
+
+<body>
+  <script>
+  /* global assert, Cookies */
+  suite('Parse cookies', function() {
+    var httpStr = 'rememberme=1; domain=foo.com;';
+    httpStr += ' path=/; ssid=Hy1t5e#oj21.876aak;';
+
+    test('should parse empty string', function() {
+      var cookieStr = '';
+      var parser = new Cookies(cookieStr);
+      assert.typeOf(parser.cookies, 'array');
+      assert.equal(parser.cookies, '');
+    });
+
+    test('should parse basic Set-Cookie string', function() {
+      var parser = new Cookies('cookie=value');
+      assert.typeOf(parser.cookies, 'array');
+      assert.lengthOf(parser.cookies, 1);
+      assert.equal(parser.cookies[0].name, 'cookie');
+      assert.equal(parser.cookies[0].value, 'value');
+    });
+
+    test('should parse Set-Cookie string', function() {
+      var parser = new Cookies(httpStr);
+      assert.typeOf(parser.cookies, 'array');
+      assert.lengthOf(parser.cookies, 2);
+    });
+
+    test('should set cookie names', function() {
+      var parser = new Cookies(httpStr);
+      assert.equal(parser.cookies[0].name, 'rememberme');
+      assert.equal(parser.cookies[1].name, 'ssid');
+    });
+
+    test('should set cookie values', function() {
+      var parser = new Cookies(httpStr);
+      assert.equal(parser.cookies[0].value, '1');
+      assert.equal(parser.cookies[1].value, 'Hy1t5e#oj21.876aak');
+    });
+
+    test('should set domains and paths', function() {
+      var parser = new Cookies(httpStr);
+      assert.equal(parser.cookies[0].domain, 'foo.com');
+      assert.equal(parser.cookies[0].path, '/');
+      assert.isUndefined(parser.cookies[1].domain);
+      assert.isUndefined(parser.cookies[1].path);
+    });
+
+    test('should set created and lastAccess properties', function() {
+      var parser = new Cookies(httpStr);
+      assert.typeOf(parser.cookies[0].created, 'number');
+      assert.typeOf(parser.cookies[0].lastAccess, 'number');
+    });
+
+    test('should set expires from max-age', function() {
+      var str = 'rememberme=1; domain=foo.com; path=/; max-age=100';
+      var parser = new Cookies(str);
+      var now = Date.now();
+      var cookie = parser.cookies[0];
+      assert.isAtLeast(cookie.expires, now + 100000);
+      assert.isAtMost(cookie.expires, now + 101000);
+      assert.isTrue(cookie.persistent,
+        'The persistent flag is not set to true');
+      cookie.maxAge = 0;
+      assert.equal(parser.cookies[0].expires, -8640000000000000,
+        'Do not set max date');
+    });
+
+    test('should set cookie header string', function() {
+      var parser = new Cookies(httpStr);
+      var c0clientStr = parser.cookies[0].toHeader();
+      var c1clientStr = parser.cookies[1].toHeader();
+      var clientStr = c0clientStr + '; ' + c1clientStr;
+      assert.equal(parser.toString(), clientStr, 'Set-Cookie string is invalid');
+      assert.equal(parser.toString(true),
+        'rememberme=1; ssid=Hy1t5e#oj21.876aak',
+        'Cookie string is invalid');
+    });
+  });
+  </script>
+</body>
+
+</html>

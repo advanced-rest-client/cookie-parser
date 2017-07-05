@@ -1,6 +1,11 @@
 {
   "verbose": false,
+  "testTimeout": 90000,
   "plugins": {
+    "local": {
+      "disabled": true,
+      "browsers": ["chrome", "firefox"]
+    },
     "sauce": {
       "disabled": true,
       "browsers": [{
@@ -8,25 +13,17 @@
         "platform": "Windows 10",
         "version": ""
       }, {
-        "browserName": "internet explorer",
-        "platform": "Windows 8.1",
-        "version": "11"
-      }, {
-        "browserName": "internet explorer",
-        "platform": "Windows 7",
-        "version": "10"
-      }, {
         "browserName": "firefox",
         "platform": "Windows 10",
-        "version": "latest-4"
+        "version": "latest-2"
       }, {
         "browserName": "chrome",
         "platform": "Windows 10",
-        "version": "latest-4"
+        "version": "latest-2"
       }, {
         "browserName": "safari",
         "platform": "OS X 10.11",
-        "version": "9"
+        "version": "10"
       }]
     }
   }
