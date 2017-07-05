@@ -1,14 +1,6 @@
-var isNode = false;
-if (!('window' in this)) {
-  isNode = true;
-}
-(function(isNode) {
+(function() {
   'use strict';
-  var URI = isNode ? require('urijs') : window.URI;
 
-  if (!URI) {
-    throw new Error('An URIjs library must be included.');
-  }
   /*******************************************************************************
    * Copyright 2016 Pawel Psztyc, The ARC team
    *
@@ -238,7 +230,7 @@ if (!('window' in this)) {
     set url(url) {
       if (url) {
         this._url = url;
-        this.uri = new URI(this.url);
+        this.uri = new URL(this.url);
       } else {
         this._url = undefined;
         this.uri = undefined;
@@ -294,7 +286,7 @@ if (!('window' in this)) {
       if (!this.uri) {
         return;
       }
-      var domain = this.uri.domain();
+      var domain = this.uri.hostname;
       if (!domain) {
         return;
       } else {
@@ -379,7 +371,7 @@ if (!('window' in this)) {
       if (!this.uri) {
         return [];
       }
-      var domain = this.uri.domain();
+      var domain = this.uri.hostname;
       if (!domain) {
         return [];
       } else {
@@ -425,7 +417,7 @@ if (!('window' in this)) {
         this.cookies = cookies.cookies;
         return;
       }
-      var foreignDomain = cookies.uri ? cookies.uri.domain() : null;
+      var foreignDomain = cookies.uri ? cookies.uri.hostname : null;
       var foreignPath = cookies.url ? this._getPath(cookies.url) : null;
       // delete cookies from this.cookies that has the same name as new ones,
       // but are domain/path match
@@ -567,7 +559,7 @@ if (!('window' in this)) {
       if (!this.uri) {
         return false;
       }
-      var domain = this.uri.domain();
+      var domain = this.uri.hostname;
       domain = domain && domain.toLowerCase && domain.toLowerCase();
       cookieDomain = cookieDomain && cookieDomain.toLowerCase && cookieDomain.toLowerCase();
       if (!cookieDomain) {
@@ -607,11 +599,6 @@ if (!('window' in this)) {
       return expired;
     }
   }
-  if (!isNode) {
-    window.Cookies = Cookies;
-    window.Cookie = Cookie;
-  } else {
-    module.exports.Cookies = Cookies;
-    module.exports.Cookie = Cookie;
-  }
-})(isNode);
+  window.Cookies = Cookies;
+  window.Cookie = Cookie;
+})();
