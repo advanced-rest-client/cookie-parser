@@ -1,6 +1,6 @@
 {
   "name": "cookie-parser",
-  "version": "1.0.15",
+  "version": "1.0.16",
   "license": "LICENSE",
   "description": "A javascript cookie parser for javascript HTTP clients.",
   "authors": [
