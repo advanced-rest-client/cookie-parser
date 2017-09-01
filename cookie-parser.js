@@ -262,7 +262,16 @@
           return;
         }
         let lowerName = name.toLowerCase();
-        let value = parts.length > 1 ? decodeURIComponent(parts[1].trim()) : null;
+        let value;
+        if (parts.length > 1) {
+          try {
+            value = decodeURIComponent(parts[1].trim());
+          } catch (e) {
+            value = parts[1];
+          }
+        } else {
+          value = null;
+        }
         // if this is an attribute of previous cookie, set it for last added cookie.
         if (cookieParts.indexOf(lowerName) !== -1) {
           if (list.length - 1 >= 0) {
