@@ -1,6 +1,6 @@
 # Guide for Contributors
 
-The Advanced REST client and related libraries is open and we encourage the community to contribute in the project. However, it is very important to follow couple of simple rules when you create an issue report or send a pull request.
+The Advanced REST client is open and we encourage the community to contribute in the project. However, it is very important to follow couple of simple rules when you create an issue report or send a pull request.
 
 ## Issue reporting
 **If this is feature request**, please provide a clear description of the feature. I've created a [document][87714bdc] that may help you fill up a feature request. But basically you should answer this questions:

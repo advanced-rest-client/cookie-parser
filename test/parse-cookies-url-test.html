@@ -1,7 +1,7 @@
 <!doctype html>
 <!--
 @license
-Copyright 2017 The Advanced REST client authors <arc@mulesoft.com>
+Copyright 2018 The Advanced REST client authors <arc@mulesoft.com>
 Licensed under the Apache License, Version 2.0 (the "License"); you may not
 use this file except in compliance with the License. You may obtain a copy of
 the License at
@@ -13,11 +13,11 @@ License for the specific language governing permissions and limitations under
 the License.
 -->
 <html>
-
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
-  <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+  <script src="../../webcomponentsjs/webcomponents-loader.js"></script>
+  <link rel="import" href="../../url/url-polyfill.html">
   <script src="../../web-component-tester/browser.js"></script>
   <link rel="import" href="../cookie-parser.html">
 </head>
@@ -28,20 +28,20 @@ the License.
   suite('Parse cookies with base URL', function() {
     this.timeout(2500);
 
-    var httpStr = 'rememberme=1; domain=foo.com;';
+    let httpStr = 'rememberme=1; domain=foo.com;';
     httpStr += ' path=/; ssid=Hy1t5e#oj21.876aak;';
-    var baseUrl = 'http://bar.com/';
+    const baseUrl = 'http://bar.com/';
 
     test('should set empty cookie\'s attributes domain and path', function() {
-      var parser = new Cookies(httpStr, baseUrl);
-      var cookie = parser.cookies[1];
+      const parser = new Cookies(httpStr, baseUrl);
+      const cookie = parser.cookies[1];
       assert.equal(cookie.domain, 'bar.com', 'Do not set cookie domain');
       assert.equal(cookie.path, '/', 'Do not set cookie path');
     });
 
     test('should remove not matched cookies', function() {
-      var parser = new Cookies(httpStr, baseUrl);
-      var removed = parser.filter();
+      const parser = new Cookies(httpStr, baseUrl);
+      const removed = parser.filter();
       assert.lengthOf(parser.cookies, 1, 'Remaining 1 cookie');
       assert.typeOf(removed, 'array', 'Removed is an array');
       assert.lengthOf(removed, 1, 'Removed has 1 item');
@@ -49,17 +49,17 @@ the License.
     });
 
     test('should not remove not expired cookies', function() {
-      var parser = new Cookies(httpStr, baseUrl);
-      var removed = parser.clearExpired();
+      const parser = new Cookies(httpStr, baseUrl);
+      const removed = parser.clearExpired();
       assert.lengthOf(parser.cookies, 2, 'Remaining 2 cookies');
       assert.typeOf(removed, 'array', 'Removed is an array');
       assert.lengthOf(removed, 0, 'Removed should be an empty array');
     });
 
     test('should remove expired cookies set by `expires`', function() {
-      var str = httpStr + ' expires=' + new Date(Date.now() - 100).toUTCString();
-      var parser = new Cookies(str, baseUrl);
-      var removed = parser.clearExpired();
+      const str = httpStr + ' expires=' + new Date(Date.now() - 100).toUTCString();
+      const parser = new Cookies(str, baseUrl);
+      const removed = parser.clearExpired();
       assert.lengthOf(parser.cookies, 1,
         'Did not removed expired cookie set by `expires` attribute');
       assert.typeOf(removed, 'array', 'Removed is an array');
@@ -68,10 +68,10 @@ the License.
     });
 
     test('should remove expired cookies set by `max-age`', function(done) {
-      var str = httpStr + ' max-age=1';
-      var parser = new Cookies(str, baseUrl);
+      const str = httpStr + ' max-age=1';
+      const parser = new Cookies(str, baseUrl);
       setTimeout(function() {
-        var removed = parser.clearExpired();
+        const removed = parser.clearExpired();
         assert.lengthOf(parser.cookies, 1,
           'Did not removed expired cookie set by `max-age` attribute');
         assert.typeOf(removed, 'array', 'Removed is an array');
