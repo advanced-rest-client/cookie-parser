@@ -1,23 +1,23 @@
 (function() {
   'use strict';
 
-  /*******************************************************************************
+  /**
    * Copyright 2016 Pawel Psztyc, The ARC team
    *
    * Licensed under the Apache License, Version 2.0 (the "License"); you may not
-   * use this file except in compliance with the License. You may obtain a copy of
-   * the License at
+   * use this file except in compliance with the License. You may obtain a copy
+   * of the License at
    *
    * http://www.apache.org/licenses/LICENSE-2.0
    *
    * Unless required by applicable law or agreed to in writing, software
    * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
    * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
-   * License for the specific language governing permissions and limitations under
-   * the License.
-   ******************************************************************************/
+   * License for the specific language governing permissions and limitations
+   * under the License.
+   */
 
-  var fieldContentRegExp = /^[\u0009\u0020-\u007e\u0080-\u00ff]+$/;
+  let fieldContentRegExp = /^[\u0009\u0020-\u007e\u0080-\u00ff]+$/;
 
   /**
    * A Cookie object.
@@ -50,8 +50,12 @@
       Object.defineProperty(this, 'max-age', {
         configurable: true,
         enumerable: true,
-        get: function() { return this._maxAge; },
-        set: function(v) { this.maxAge = v; }
+        get: function() {
+          return this._maxAge;
+        },
+        set: function(v) {
+          this.maxAge = v;
+        }
       });
 
       opts = opts || {};
@@ -90,7 +94,9 @@
         this.httpOnly = opts.httpOnly;
       }
     }
-
+    /**
+     * @param {Number} max The max age value
+     */
     set maxAge(max) {
       max = Number(max);
       if (max !== max) {
@@ -102,17 +108,21 @@
         // and https://tools.ietf.org/html/rfc6265#section-5.2.2
         this._expires = new Date(-8640000000000000).getTime();
       } else {
-        var now = Date.now();
+        let now = Date.now();
         now += (max * 1000);
         this._expires = now;
       }
       this.persistent = true;
     }
-
+    /**
+     * @return {Number} Returns a value of maxAge property
+     */
     get maxAge() {
       return this['max-age'];
     }
-
+    /**
+     * @param {Date|String} expires Date or parsable date string
+     */
     set expires(expires) {
       if (expires instanceof Date) {
         expires = expires.getTime();
@@ -127,11 +137,15 @@
       this._expires = expires;
       this.persistent = true;
     }
-
+    /**
+     * @return {Date}
+     */
     get expires() {
       return this._expires;
     }
-
+    /**
+     * @param {String} domain Cookie domain
+     */
     set domain(domain) {
       this._domain = domain;
       if (!domain) {
@@ -140,22 +154,25 @@
         this.hostOnly = true;
       }
     }
-
+    /**
+     * @return {String} Cookie domain
+     */
     get domain() {
       return this._domain;
     }
     /**
-     * Converts the cookie to the `name=value` string.
+     * @return {String} Cookie's `name=value` string.
      */
     toString() {
       return this.name + '=' + this.value;
     }
     /**
      * Returns a Cookie as a HTTP header string.
+     * @return {String} Cookie string as a HTTP header value
      */
     toHeader() {
-      var header = this.toString();
-      var expires;
+      let header = this.toString();
+      let expires;
       if (this._expires) {
         expires = new Date(this._expires);
         if (expires.toString() === 'Invalid Date') {
@@ -181,11 +198,13 @@
     /**
      * Override toJSON behaviour so it will eliminate
      * all _* properies and replace it with a proper ones.
+     *
+     * @return {Object}
      */
     toJSON() {
-      var copy = Object.assign({}, this);
-      var keys = Object.keys(copy);
-      var under = keys.filter((key) => key.indexOf('_') === 0);
+      const copy = Object.assign({}, this);
+      const keys = Object.keys(copy);
+      const under = keys.filter((key) => key.indexOf('_') === 0);
       under.forEach((key) => {
         let realKey = key.substr(1);
         copy[realKey] = copy[key];
@@ -204,8 +223,8 @@
      * Constructs an object.
      *
      * @param {String?} cookie A HTTP cookie strig to parse.
-     * @param {String?} url A request url for this object. If empty some cookie computations
-     * (like checking if cookies match) will be omnited.
+     * @param {String?} url A request url for this object. If empty some
+     * cookie computations (like checking if cookies match) will be omnited.
      */
     constructor(cookie, url) {
       if (!cookie) {
@@ -226,7 +245,10 @@
 
       this._fillCookieAttributes();
     }
-
+    /**
+     * Set's the URL and parses it setting `uri` property.
+     * @param {String} url Cookie URL
+     */
     set url(url) {
       if (url) {
         this._url = url;
@@ -236,7 +258,9 @@
         this.uri = undefined;
       }
     }
-
+    /**
+     * @return {String} Cookie URL
+     */
     get url() {
       return this._url;
     }
@@ -247,8 +271,9 @@
      * @return {Array<Cookie>} List of parsed cookies.
      */
     static parse(cookies) {
-      var cookieParts = ['path', 'domain', 'max-age', 'expires', 'secure', 'httponly'];
-      var list = [];
+      const cookieParts = ['path', 'domain', 'max-age', 'expires',
+      'secure', 'httponly'];
+      const list = [];
       if (!cookies || !cookies.trim()) {
         return list;
       }
@@ -272,7 +297,8 @@
         } else {
           value = null;
         }
-        // if this is an attribute of previous cookie, set it for last added cookie.
+        // if this is an attribute of previous cookie, set it for last
+        // added cookie.
         if (cookieParts.indexOf(lowerName) !== -1) {
           if (list.length - 1 >= 0) {
             list[list.length - 1][lowerName] = value;
@@ -288,20 +314,20 @@
       return list;
     }
     /**
-     * Clients must fill `path` and `domain` attribute if not set by the server to match current
-     * request url.
+     * Clients must fill `path` and `domain` attribute if not set by the
+     * server to match current request url.
      */
     _fillCookieAttributes() {
       if (!this.uri) {
         return;
       }
-      var domain = this.uri.hostname;
+      let domain = this.uri.hostname;
       if (!domain) {
         return;
       } else {
         domain = domain.toLowerCase();
       }
-      var path = this._getPath(this.url);
+      const path = this._getPath(this.url);
       this.cookies.forEach((cookie) => {
         if (!cookie.path) {
           cookie.path = path;
@@ -322,7 +348,7 @@
      * @return {Cookie} A Cookie object or null.
      */
     get(name) {
-      var cookies = this.cookies;
+      const cookies = this.cookies;
       for (let i = 0, len = cookies.length; i < len; i++) {
         if (cookies[i].name === name) {
           return cookies[i];
@@ -338,21 +364,24 @@
      * @param {Object<String, String>} opts Other cookie options to set.
      */
     set(name, value, opts) {
-      var cookie = new Cookie(name, value, opts);
-      var cookies = this.cookies.filter((c) => c.name !== name);
+      const cookie = new Cookie(name, value, opts);
+      const cookies = this.cookies.filter((c) => c.name !== name);
       cookies.push(cookie);
       this.cookies = cookies;
     }
 
     /**
      * Returns a string that can be used in a HTTP header value for Cookie.
-     * The structure of the cookie string depends on if you want to send a cookie from the server
-     * to client or other way around.
-     * When you want to send the `Cookie` header to server set `toServer` argument to true. Then it
-     * will produce only `name=value;` string. Otherwise it will be the `Set-Cookie` header value
+     * The structure of the cookie string depends on if you want to send a
+     * cookie from the server to client or other way around.
+     * When you want to send the `Cookie` header to server set
+     * `toServer` argument to true. Then it will produce only `name=value;`
+     * string. Otherwise it will be the `Set-Cookie` header value
      * containing all other cookies properties.
      *
-     * @param {Boolean} toServer True if produced string is to be used with `Cookie` header
+     * @param {Boolean} toServer True if produced string is to be used with
+     * `Cookie` header
+     * @return {String}
      */
     toString(toServer) {
       let parts = [];
@@ -368,7 +397,8 @@
       return parts.join('; ');
     }
     /**
-     * Remove cookies from `this.cookies` that has been set for different domain and path.
+     * Remove cookies from `this.cookies` that has been set for different
+     * domain and path.
      * This function has no effect if the URL is not set.
      *
      * This function follows an alghoritm defined in https://tools.ietf.org/html/rfc6265 for
@@ -380,15 +410,15 @@
       if (!this.uri) {
         return [];
       }
-      var domain = this.uri.hostname;
+      let domain = this.uri.hostname;
       if (!domain) {
         return [];
       } else {
         domain = domain.toLowerCase();
       }
-      var path = this._getPath(this.url);
-      var removed = [];
-      var validCookies = this.cookies.filter((cookie) => {
+      const path = this._getPath(this.url);
+      const removed = [];
+      const validCookies = this.cookies.filter((cookie) => {
         if (!cookie.path) {
           cookie.path = path;
         }
@@ -399,7 +429,7 @@
           cookie.hostOnly = true;
           return true;
         }
-        var res = this._matchDomain(cDomain) && this._matchPath(cookie.path);
+        const res = this._matchDomain(cDomain) && this._matchPath(cookie.path);
         if (!res) {
           removed.push(cookie);
         }
@@ -410,13 +440,15 @@
     }
     /**
      * Merges this cookies with another Cookies object.
-     * This cookies will be overwritten by passed cookies according to the HTTP spec.
-     * This function is useful when you need to override cookies with the response from the server
+     * This cookies will be overwritten by passed cookies according to
+     * the HTTP spec.
+     * This function is useful when you need to override cookies with
+     * the response from the server
      * as defined in the https://tools.ietf.org/html/rfc6265.
      *
      * @param {Cookies} cookies An Cookies object with newest cookies.
-     * @param {String|Array?} copyKeys If set, it will try copy values for given keys from old
-     * object to the new one.
+     * @param {String|Array?} copyKeys If set, it will try copy values
+     * for given keys from old object to the new one.
      */
     merge(cookies, copyKeys) {
       if (!cookies || !cookies.cookies || cookies.cookies.length === 0) {
@@ -426,19 +458,19 @@
         this.cookies = cookies.cookies;
         return;
       }
-      var foreignDomain = cookies.uri ? cookies.uri.hostname : null;
-      var foreignPath = cookies.url ? this._getPath(cookies.url) : null;
+      const foreignDomain = cookies.uri ? cookies.uri.hostname : null;
+      const foreignPath = cookies.url ? this._getPath(cookies.url) : null;
       // delete cookies from this.cookies that has the same name as new ones,
       // but are domain/path match
-      var tLength = this.cookies.length - 1;
-      var newCookies = cookies.cookies;
-      var nLength = newCookies.length;
-      copyKeys = copyKeys ? copyKeys instanceof Array ? copyKeys : [copyKeys] : null;
-      var copyKeysLength = copyKeys ? copyKeys.length : 0;
-      for (var i = tLength; i >= 0; i--) {
-        var tName = this.cookies[i].name;
-        for (var j = 0; j < nLength; j++) {
-          var nName = newCookies[j].name;
+      const newCookies = cookies.cookies;
+      const nLength = newCookies.length;
+      copyKeys = copyKeys ?
+        copyKeys instanceof Array ? copyKeys : [copyKeys] : null;
+      const copyKeysLength = copyKeys ? copyKeys.length : 0;
+      for (let i = this.cookies.length - 1; i >= 0; i--) {
+        const tName = this.cookies[i].name;
+        for (let j = 0; j < nLength; j++) {
+          const nName = newCookies[j].name;
           if (nName === tName) {
             if (!foreignDomain || !this._matchDomain(foreignDomain)) {
               // This is cookie for a different domain. Don't override.
@@ -463,8 +495,8 @@
         }
       }
       // Do not re-set cookies that values are not set.
-      for (i = nLength - 1; i >= 0; i--) {
-        var nValue = newCookies[i].value;
+      for (let i = nLength - 1; i >= 0; i--) {
+        const nValue = newCookies[i].value;
         if (!nValue || !nValue.trim || !nValue.trim()) {
           newCookies.splice(i, 1);
         }
@@ -477,12 +509,13 @@
      * https://tools.ietf.org/html/rfc6265#section-5.1.4
      *
      * @param {String} url A url to extract path from.
+     * @return {String}
      */
     _getPath(url) {
       if (!url) {
         return '/';
       }
-      var index = url.indexOf('/', 8); //after `http(s)://` string
+      let index = url.indexOf('/', 8); // after `http(s)://` string
       if (index === -1) {
         return '/';
       }
@@ -527,12 +560,12 @@
       if (!cookiePath) {
         return true;
       }
-      var hostPath = this._getPath(this.url);
+      const hostPath = this._getPath(this.url);
       if (hostPath === cookiePath) {
         return true;
       }
-      // var index = cookiePath.indexOf(hostPath);
-      var index = hostPath.indexOf(cookiePath);
+      // const index = cookiePath.indexOf(hostPath);
+      const index = hostPath.indexOf(cookiePath);
       if (index === 0 && cookiePath[cookiePath.length - 1] === '/') {
         return true;
       } else if (index === 0 && cookiePath.indexOf('/', 1) === -1) {
@@ -540,7 +573,7 @@
       }
 
       if (index === 0) {
-        for (var i = 0, len = hostPath.length; i < len; i++) {
+        for (let i = 0, len = hostPath.length; i < len; i++) {
           if (cookiePath.indexOf(hostPath[i]) === -1 && hostPath[i] === '/') {
             return true;
           }
@@ -549,18 +582,18 @@
       return false;
     }
     /**
-     * Checks if `domain` of the request url (defined as `this.url`) matches domain defined in a
-     * cookie.
+     * Checks if `domain` of the request url (defined as `this.url`)
+     * matches domain defined in a cookie.
      * This follows algoritm defined in https://tools.ietf.org/html/rfc6265#section-5.1.3
      *
-     * Note: If `cookieDomain` is not set it returns false, while (according to the spec) it
-     * should be set to `domain` and pass the test.
-     * Because this function only check if domains matches it will not override domain.
+     * Note: If `cookieDomain` is not set it returns false, while
+     * (according to the spec) it should be set to `domain` and pass the test.
+     * Because this function only check if domains matches it will not
+     * override domain.
      * Cookie domain should be filled before calling this function.
      *
      * Note: This function will return false if the `this.url` was not set.
      *
-     * @param {String} domain A host domain
      * @param {String} cookieDomain A domain received in the cookie.
      * @return {Boolean} True if domains matches.
      */
@@ -568,9 +601,10 @@
       if (!this.uri) {
         return false;
       }
-      var domain = this.uri.hostname;
+      let domain = this.uri.hostname;
       domain = domain && domain.toLowerCase && domain.toLowerCase();
-      cookieDomain = cookieDomain && cookieDomain.toLowerCase && cookieDomain.toLowerCase();
+      cookieDomain = cookieDomain && cookieDomain.toLowerCase &&
+        cookieDomain.toLowerCase();
       if (!cookieDomain) {
         return false;
       }
@@ -592,9 +626,9 @@
      * @return {Array<Cookie>} List of removed (expired) cookies.
      */
     clearExpired() {
-      var now = Date.now();
-      var expired = [];
-      var cookies = this.cookies.filter((cookie) => {
+      const now = Date.now();
+      const expired = [];
+      const cookies = this.cookies.filter((cookie) => {
         if (!cookie.expires) {
           return true;
         }
