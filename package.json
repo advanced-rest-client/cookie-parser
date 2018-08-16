@@ -1,5 +1,5 @@
 {
-  "name": "cookie-parser",
+  "name": "@advanced-rest-client/cookie-parser",
   "version": "2.0.0",
   "license": "Apache-2.0",
   "description": "A javascript cookie parser for javascript HTTP clients.",
@@ -7,10 +7,14 @@
     "test-sauce": "polymer test --plugin sauce --job-name \"cookie-parser:local-test\"",
     "test": "polymer test --plugin local",
     "lint": "polymer lint cookie-parser.html",
-    "update-types": "gen-typescript-declarations --deleteExisting --outDir ."
+    "update-types": "gen-typescript-declarations --deleteExisting --outDir .",
+    "test-node": "mocha test/*.node.test.js"
   },
   "devDependencies": {
-    "@polymer/gen-typescript-declarations": "^1.1.1"
+    "@polymer/gen-typescript-declarations": "^1.1.1",
+    "chai": "^4.1.2",
+    "mocha": "^4.1.0"
   },
-  "private": false
+  "private": false,
+  "main": "parser.js"
 }

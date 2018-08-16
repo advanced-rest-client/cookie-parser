@@ -1,6 +1,11 @@
 (function() {
   'use strict';
 
+  let isNode = false;
+  if (typeof module !== 'undefined' && module.exports) {
+    isNode = true;
+  }
+
   /**
    * Copyright 2016 Pawel Psztyc, The ARC team
    *
@@ -17,7 +22,7 @@
    * under the License.
    */
 
-  let fieldContentRegExp = /^[\u0009\u0020-\u007e\u0080-\u00ff]+$/;
+  const fieldContentRegExp = /^[\u0009\u0020-\u007e\u0080-\u00ff]+$/;
 
   /**
    * A Cookie object.
@@ -29,7 +34,13 @@
      *
      * @param {Stirng} name Cookie name
      * @param {Stirng} value Cookie value
-     * @param {Object} opts Additional cookie attributes.
+     * @param {Object} opts Additional cookie attributes:
+     * - max-age {Number}
+     * - expires {Number}
+     * - domain {String}
+     * - path {String}
+     * - secure {Boolean}
+     * - httpOnly {Boolean}
      */
     constructor(name, value, opts) {
       if (!fieldContentRegExp.test(name)) {
@@ -38,15 +49,12 @@
       if (value && !fieldContentRegExp.test(value)) {
         throw new TypeError('Argument `value` is invalid');
       }
-
       if (this.path && !fieldContentRegExp.test(this.path)) {
         throw new TypeError('Option `path` is invalid');
       }
-
       if (this.domain && !fieldContentRegExp.test(this.domain)) {
         throw new TypeError('Option `domain` is invalid');
       }
-
       Object.defineProperty(this, 'max-age', {
         configurable: true,
         enumerable: true,
@@ -57,9 +65,7 @@
           this.maxAge = v;
         }
       });
-
       opts = opts || {};
-
       this._expires = 0;
       this._domain = undefined;
       this._maxAge = undefined;
@@ -77,7 +83,6 @@
         // see http://stackoverflow.com/a/11526569/1127848
         this._expires = new Date(8640000000000000).getTime();
       }
-
       if ('domain' in opts) {
         this.domain = opts.domain;
       } else {
@@ -89,7 +94,6 @@
       if ('secure' in opts) {
         this.secure = opts.secure;
       }
-
       if ('httpOnly' in opts) {
         this.httpOnly = opts.httpOnly;
       }
@@ -179,7 +183,6 @@
           expires = new Date(0);
         }
       }
-
       if (this.path) {
         header += '; path=' + this.path;
       }
@@ -194,7 +197,6 @@
       }
       return header;
     }
-
     /**
      * Override toJSON behaviour so it will eliminate
      * all _* properies and replace it with a proper ones.
@@ -206,7 +208,7 @@
       const keys = Object.keys(copy);
       const under = keys.filter((key) => key.indexOf('_') === 0);
       under.forEach((key) => {
-        let realKey = key.substr(1);
+        const realKey = key.substr(1);
         copy[realKey] = copy[key];
         delete copy[key];
       });
@@ -252,7 +254,12 @@
     set url(url) {
       if (url) {
         this._url = url;
-        this.uri = new URL(this.url);
+        if (isNode) {
+          const {URL} = require('url');
+          this.uri = new URL(this.url);
+        } else {
+          this.uri = new URL(this.url);
+        }
       } else {
         this._url = undefined;
         this.uri = undefined;
@@ -642,6 +649,11 @@
       return expired;
     }
   }
-  window.Cookies = Cookies;
-  window.Cookie = Cookie;
+  if (isNode) {
+    module.exports.Cookies = Cookies;
+    module.exports.Cookie = Cookie;
+  } else {
+    window.Cookies = Cookies;
+    window.Cookie = Cookie;
+  }
 })();
