@@ -1,3 +1,18 @@
+<a name="2.0.0"></a>
+# [2.0.0](https://github.com/advanced-rest-client/cookie-parser/compare/1.0.16...2.0.0) (2018-08-16)
+
+
+### Fix
+
+* Fixing linter errors ([2c1deb0d351cce16e96ede0ae5e0f55dd2a7f24f](https://github.com/advanced-rest-client/cookie-parser/commit/2c1deb0d351cce16e96ede0ae5e0f55dd2a7f24f))
+* Removing the element definition so the crisper library don't override the script ([c1731450b699112361dda7184b53411387320130](https://github.com/advanced-rest-client/cookie-parser/commit/c1731450b699112361dda7184b53411387320130))
+
+### Update
+
+* Adding error check for the decode function ([f7ff35923abae51b68d7ba941520a593c495ca71](https://github.com/advanced-rest-client/cookie-parser/commit/f7ff35923abae51b68d7ba941520a593c495ca71))
+
+
+
 <a name="1.0.19"></a>
 ## [1.0.19](https://github.com/advanced-rest-client/cookie-parser/compare/1.0.16...1.0.19) (2017-09-15)
 
