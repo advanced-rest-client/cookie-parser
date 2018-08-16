@@ -17,7 +17,8 @@ the License.
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
-  <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+  <script src="../../webcomponentsjs/webcomponents-loader.js"></script>
+  <link rel="import" href="../../url/url-polyfill.html">
   <script src="../../web-component-tester/browser.js"></script>
   <link rel="import" href="../cookie-parser.html">
 </head>
@@ -28,44 +29,44 @@ the License.
   suite('Parse cookies with base URL', function() {
     this.timeout(2500);
 
-    var httpStr = 'rememberme=1; domain=foo.com;';
+    let httpStr = 'rememberme=1; domain=foo.com;';
     httpStr += ' path=/; ssid=Hy1t5e#oj21.876aak;';
-    var baseUrl = 'http://bar.com/';
+    const baseUrl = 'http://bar.com/';
 
     test('should merge when no old cookies', function() {
-      var oldParser = new Cookies('', baseUrl);
-      var newParser = new Cookies(httpStr, baseUrl);
+      const oldParser = new Cookies('', baseUrl);
+      const newParser = new Cookies(httpStr, baseUrl);
       oldParser.merge(newParser);
       assert.lengthOf(oldParser.cookies, 2);
     });
 
     test('should merge when no new cookies, no old cookies', function() {
-      var oldParser = new Cookies('', baseUrl);
-      var newParser = new Cookies('', baseUrl);
+      const oldParser = new Cookies('', baseUrl);
+      const newParser = new Cookies('', baseUrl);
       oldParser.merge(newParser);
       assert.lengthOf(oldParser.cookies, 0);
     });
 
     test('should merge when no new cookies', function() {
-      var oldParser = new Cookies(httpStr, baseUrl);
-      var newParser = new Cookies('',baseUrl);
+      const oldParser = new Cookies(httpStr, baseUrl);
+      const newParser = new Cookies('',baseUrl);
       oldParser.merge(newParser);
       assert.lengthOf(oldParser.cookies, 2);
     });
 
     test('should merge different cookies', function() {
-      var oldParser = new Cookies(httpStr, baseUrl);
-      var newParser = new Cookies('test=value', baseUrl);
+      const oldParser = new Cookies(httpStr, baseUrl);
+      const newParser = new Cookies('test=value', baseUrl);
       oldParser.merge(newParser);
       assert.lengthOf(oldParser.cookies, 3);
     });
 
     test('should merge same cookies', function(done) {
-      var pastCookies = new Cookies(httpStr, baseUrl);
+      const pastCookies = new Cookies(httpStr, baseUrl);
       setTimeout(function() {
-        var oldCookieCreationTime = pastCookies.cookies[1].created;
-        var oldCookieLastAccessTime = pastCookies.cookies[1].lastAccess;
-        var newParser = new Cookies('ssid=abc', baseUrl);
+        const oldCookieCreationTime = pastCookies.cookies[1].created;
+        const oldCookieLastAccessTime = pastCookies.cookies[1].lastAccess;
+        const newParser = new Cookies('ssid=abc', baseUrl);
         pastCookies.merge(newParser);
         assert.lengthOf(pastCookies.cookies, 2, 'Old cookies are replaced');
         assert.equal(pastCookies.cookies[1].created, oldCookieCreationTime,
@@ -77,8 +78,8 @@ the License.
     });
 
     test('should have new cookie value', function() {
-      var oldParser = new Cookies(httpStr, baseUrl);
-      var newParser = new Cookies('ssid=abc', baseUrl);
+      const oldParser = new Cookies(httpStr, baseUrl);
+      const newParser = new Cookies('ssid=abc', baseUrl);
       oldParser.merge(newParser);
       assert.equal(oldParser.cookies[1].value, 'abc');
     });

@@ -1,10 +1,11 @@
 {
   "name": "cookie-parser",
-  "version": "1.0.19",
-  "license": "LICENSE",
+  "version": "2.0.0",
+  "license": "Apache-2.0",
   "description": "A javascript cookie parser for javascript HTTP clients.",
   "authors": [
-    "Pawel Psztyc"
+    "Pawel Psztyc",
+    "The Advanced REST client authors <arc@mulesoft.com>"
   ],
   "main": "cookie-parser.html",
   "homepage": "https://github.com/jarrodek/cookie-parser",
@@ -18,19 +19,11 @@
     "HTTP"
   ],
   "private": false,
-  "dependencies": {
-    "polymer": "Polymer/polymer#^1.9.2",
-    "url": "advanced-rest-client/URL#^0.6.0"
-  },
   "devDependencies": {
     "lodash": "^3.7.0",
-    "iron-component-page": "polymerelements/iron-component-page#1.0.0",
-    "web-component-tester": "^6.0.0",
-    "paper-styles": "polymerelements/paper-styles#^1.0.2",
-    "iron-demo-helpers": "PolymerElements/iron-demo-helpers#^1.0.0",
-    "iron-test-helpers": "PolymerElements/iron-test-helpers#^1.4.0",
-    "test-fixture": "PolymerElements/test-fixture#^3.0.0",
-    "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0"
+    "web-component-tester": "Polymer/web-component-tester#^6.0.0",
+    "webcomponentsjs": "webcomponents/webcomponentsjs#^1.0.0",
+    "url": "advanced-rest-client/URL#^0.6.0"
   },
   "ignore": [
     "/.*",
