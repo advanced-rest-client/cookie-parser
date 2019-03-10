@@ -618,6 +618,13 @@
       if (domain === cookieDomain) {
         return true;
       }
+      if (cookieDomain[0] === '.') {
+        const parts = domain.split('.');
+        if (parts.length > 1) {
+          parts.shift();
+          domain = parts.join('.');
+        }
+      }
       let index = cookieDomain.indexOf(domain);
       if (index === -1) {
         return false;
