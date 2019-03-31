@@ -1,21 +1,20 @@
-<!doctype html>
-<html>
-<head>
+<!DOCTYPE html><html><head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
-  <script src="../../webcomponentsjs/webcomponents-loader.js"></script>
-  <link rel="import" href="../../url/url-polyfill.html">
-  <script src="../../web-component-tester/browser.js"></script>
-</head>
+  <script src="../node_modules/mocha/mocha.js"></script>
+    <script src="../node_modules/wct-mocha/wct-mocha.js"></script>
+    </head>
 <body>
-  <script>
-    /* global WCT */
-    // Load and run all tests (.html, .js):
-    WCT.loadSuites([
-      'parse-cookies-test.html',
-      'parse-cookies-url-test.html',
-      'merge-cookies-test.html'
-    ]);
-  </script>
-</body>
-</html>
+  <script type="module">
+import '../../../url/url-polyfill.js';
+/* global WCT */
+// Load and run all tests (.html, .js):
+WCT.loadSuites([
+  'parse-cookies-test.html',
+  'parse-cookies-url-test.html',
+  'merge-cookies-test.html'
+]);
+</script>
+
+
+</body></html>
