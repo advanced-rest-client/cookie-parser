@@ -29,10 +29,12 @@
     "sinon": "^7.2.3",
     "wct-mocha": "^1.0.0"
   },
-  "main": "parser.js",
+  "main": "cookie-parser-node.js",
   "contributors": [
     "Pawel Psztyc",
     "The Advanced REST client authors <arc@mulesoft.com>"
   ],
-  "dependencies": {}
+  "dependencies": {
+    "esm": "^3.2.22"
+  }
 }

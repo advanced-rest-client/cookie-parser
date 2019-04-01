@@ -11,10 +11,6 @@ WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 License for the specific language governing permissions and limitations under
 the License.
 */
-let isNode = false;
-if (typeof module !== 'undefined' && module.exports) {
-  isNode = true;
-}
 
 /**
  * Copyright 2016 Pawel Psztyc, The ARC team
@@ -38,7 +34,7 @@ const fieldContentRegExp = /^[\u0009\u0020-\u007e\u0080-\u00ff]+$/;
  * A Cookie object.
  * It is based on https://github.com/pillarjs/cookies/blob/master/lib/cookies.js
  */
-class Cookie {
+export class Cookie {
   /**
    * Constructs a new cookie.
    *
@@ -230,7 +226,7 @@ class Cookie {
  * A library to handle Cookie parsing.
  * It is based on https://github.com/pillarjs/cookies/blob/master/lib/cookies.js
  */
-class Cookies {
+export class Cookies {
   /**
    * Constructs an object.
    *
@@ -264,12 +260,7 @@ class Cookies {
   set url(url) {
     if (url) {
       this._url = url;
-      if (isNode) {
-        const {URL} = require('url');
-        this.uri = new URL(this.url);
-      } else {
-        this.uri = new URL(this.url);
-      }
+      this.uri = new URL(this.url);
     } else {
       this._url = undefined;
       this.uri = undefined;
@@ -628,6 +619,13 @@ class Cookies {
     if (domain === cookieDomain) {
       return true;
     }
+    if (cookieDomain[0] === '.') {
+      const parts = domain.split('.');
+      if (parts.length > 1) {
+        parts.shift();
+        domain = parts.join('.');
+      }
+    }
     let index = cookieDomain.indexOf(domain);
     if (index === -1) {
       return false;
@@ -658,11 +656,4 @@ class Cookies {
     this.cookies = cookies;
     return expired;
   }
-}
-if (isNode) {
-  module.exports.Cookies = Cookies;
-  module.exports.Cookie = Cookie;
-} else {
-  window.Cookies = Cookies;
-  window.Cookie = Cookie;
 }
