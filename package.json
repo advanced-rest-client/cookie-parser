@@ -11,7 +11,7 @@
   },
   "homepage": "https://github.com/jarrodek/cookie-parser",
   "name": "@advanced-rest-client/cookie-parser",
-  "version": "3.0.0-preview.1",
+  "version": "3.0.0",
   "license": "Apache-2.0",
   "scripts": {
     "test-sauce": "polymer test --plugin sauce --job-name \"cookie-parser:local-test\"",
