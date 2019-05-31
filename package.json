@@ -22,11 +22,11 @@
   },
   "devDependencies": {
     "@polymer/gen-typescript-declarations": "^1.6.1",
-    "chai": "^4.2.0",
-    "mocha": "^5.2.0",
-    "@webcomponents/webcomponentsjs": "^2.0.0",
     "@polymer/test-fixture": "^4.0.2",
-    "sinon": "^7.2.3",
+    "@webcomponents/webcomponentsjs": "^2.2.10",
+    "chai": "^4.2.0",
+    "mocha": "^6.1.4",
+    "sinon": "^7.3.2",
     "wct-mocha": "^1.0.0"
   },
   "main": "cookie-parser-node.js",
@@ -35,6 +35,6 @@
     "The Advanced REST client authors <arc@mulesoft.com>"
   ],
   "dependencies": {
-    "esm": "^3.2.22"
+    "esm": "^3.2.25"
   }
 }
