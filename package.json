@@ -14,27 +14,52 @@
   "version": "3.0.0",
   "license": "Apache-2.0",
   "scripts": {
-    "test-sauce": "polymer test --plugin sauce --job-name \"cookie-parser:local-test\"",
-    "test": "polymer test --plugin local",
-    "lint": "polymer lint cookie-parser.html",
+    "test": "karma start --coverage",
+    "test:watch": "karma start --auto-watch=true --single-run=false",
+    "test:update-snapshots": "karma start --update-snapshots",
+    "test:prune-snapshots": "karma start --prune-snapshots",
+    "test:compatibility": "karma start --compatibility all --coverage",
+    "test:compatibility:watch": "karma start --compatibility all --auto-watch=true --single-run=false",
+    "test:sl": "karma start karma.sl.config.js --compatibility all --coverage",
     "update-types": "gen-typescript-declarations --deleteExisting --outDir .",
-    "test-node": "mocha test/*.node.test.js"
+    "lint:eslint": "eslint --ext .js,.html . --ignore-path .gitignore",
+    "format:eslint": "eslint --ext .js,.html . --fix --ignore-path .gitignore",
+    "lint:prettier": "prettier \"**/*.js\" --check --ignore-path .gitignore",
+    "format:prettier": "prettier \"**/*.js\" --write --ignore-path .gitignore",
+    "lint": "npm run lint:eslint && npm run lint:prettier",
+    "format": "npm run format:eslint && npm run format:prettier"
   },
   "devDependencies": {
-    "@polymer/gen-typescript-declarations": "^1.6.1",
+    "@advanced-rest-client/eslint-config": "^1.1.3",
+    "@advanced-rest-client/prettier-config": "^0.1.0",
+    "@advanced-rest-client/testing-karma-sl": "^1.0.5",
+    "@polymer/gen-typescript-declarations": "^1.6.2",
     "@polymer/test-fixture": "^4.0.2",
-    "@webcomponents/webcomponentsjs": "^2.2.10",
-    "chai": "^4.2.0",
-    "mocha": "^5.2.0",
-    "sinon": "^7.3.2",
-    "wct-mocha": "^1.0.0"
+    "@webcomponents/webcomponentsjs": "^2.3.0",
+    "@commitlint/cli": "^8.2.0",
+    "@commitlint/config-conventional": "^8.2.0",
+    "@open-wc/testing": "^2.3.4",
+    "@open-wc/testing-karma": "^3.1.38",
+    "deepmerge": "^4.0.0",
+    "husky": "^3.0.8",
+    "karma": "^4.2.0",
+    "lint-staged": "^9.4.1",
+    "sinon": "^7.5.0",
+    "lit-html": "^1.1.2"
   },
   "main": "cookie-parser-node.js",
+  "module": "cookie-parser.js",
   "contributors": [
     "Pawel Psztyc",
     "The Advanced REST client authors <arc@mulesoft.com>"
   ],
   "dependencies": {
     "esm": "^3.2.25"
+  },
+  "lint-staged": {
+    "*.js": [
+      "eslint --fix",
+      "git add"
+    ]
   }
 }

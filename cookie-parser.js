@@ -27,7 +27,7 @@ the License.
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-
+/* eslint-disable no-control-regex */
 const fieldContentRegExp = /^[\u0009\u0020-\u007e\u0080-\u00ff]+$/;
 
 /**
@@ -55,10 +55,11 @@ export class Cookie {
     if (value && !fieldContentRegExp.test(value)) {
       throw new TypeError('Argument `value` is invalid');
     }
-    if (this.path && !fieldContentRegExp.test(this.path)) {
+    opts = opts || {};
+    if (opts.path && !fieldContentRegExp.test(opts.path)) {
       throw new TypeError('Option `path` is invalid');
     }
-    if (this.domain && !fieldContentRegExp.test(this.domain)) {
+    if (opts.domain && !fieldContentRegExp.test(opts.domain)) {
       throw new TypeError('Option `domain` is invalid');
     }
     Object.defineProperty(this, 'max-age', {
@@ -71,7 +72,6 @@ export class Cookie {
         this.maxAge = v;
       }
     });
-    opts = opts || {};
     this._expires = 0;
     this._domain = undefined;
     this._maxAge = undefined;
@@ -137,7 +137,7 @@ export class Cookie {
     if (expires instanceof Date) {
       expires = expires.getTime();
     } else if (typeof expires === 'string') {
-      let tmp = new Date(expires);
+      const tmp = new Date(expires);
       if (tmp.toString() === 'Invalid Date') {
         expires = 0;
       } else {
@@ -189,11 +189,11 @@ export class Cookie {
         expires = new Date(0);
       }
     }
-    if (this.path) {
-      header += '; path=' + this.path;
-    }
     if (expires) {
       header += '; expires=' + expires.toUTCString();
+    }
+    if (this.path) {
+      header += '; path=' + this.path;
     }
     if (this.domain) {
       header += '; domain=' + this.domain;
@@ -286,15 +286,15 @@ export class Cookies {
       return list;
     }
     cookies.split(/;/).map((cookie) => {
-      let parts = cookie.split(/=/, 2);
+      const parts = cookie.split(/=/, 2);
       if (parts.length === 0) {
         return;
       }
-      let name = decodeURIComponent(parts[0].trim());
+      const name = decodeURIComponent(parts[0].trim());
       if (!name) {
         return;
       }
-      let lowerName = name.toLowerCase();
+      const lowerName = name.toLowerCase();
       let value;
       if (parts.length > 1) {
         try {
@@ -315,7 +315,7 @@ export class Cookies {
         try {
           list.push(new Cookie(name, value));
         } catch (e) {
-          console.warn('Cookie can not be created', e);
+          // ..
         }
       }
     });
@@ -340,7 +340,7 @@ export class Cookies {
       if (!cookie.path) {
         cookie.path = path;
       }
-      let cDomain = cookie.domain;
+      const cDomain = cookie.domain;
       if (!cDomain) {
         cookie.domain = domain;
         // point 6. of https://tools.ietf.org/html/rfc6265#section-5.3
@@ -392,7 +392,7 @@ export class Cookies {
    * @return {String}
    */
   toString(toServer) {
-    let parts = [];
+    const parts = [];
     if (toServer) {
       this.cookies.forEach((cookie) => {
         parts.push(cookie.toString());
@@ -430,7 +430,7 @@ export class Cookies {
       if (!cookie.path) {
         cookie.path = path;
       }
-      let cDomain = cookie.domain;
+      const cDomain = cookie.domain;
       if (!cDomain) {
         cookie.domain = domain;
         // point 6. of https://tools.ietf.org/html/rfc6265#section-5.3
@@ -488,11 +488,11 @@ export class Cookies {
             // This is cookie for a different path. Don't override.
             continue;
           }
-          let removed = this.cookies.splice(i, 1);
+          const removed = this.cookies.splice(i, 1);
           newCookies[j].created = removed[0].created;
           if (copyKeys) {
             for (let k = 0; k < copyKeysLength; k++) {
-              let key = copyKeys[k];
+              const key = copyKeys[k];
               if (key in removed[0]) {
                 newCookies[j][key] = removed[0][key];
               }
@@ -520,16 +520,17 @@ export class Cookies {
    * @return {String}
    */
   _getPath(url) {
+    const defaultValue = '/';
     if (!url) {
-      return '/';
+      return defaultValue;
     }
     let index = url.indexOf('/', 8); // after `http(s)://` string
     if (index === -1) {
-      return '/';
+      return defaultValue;
     }
     url = url.substr(index);
     if (!url || url[0] !== '/') {
-      return [];
+      return defaultValue;
     }
     // removed query string
     index = url.indexOf('?');
@@ -543,7 +544,7 @@ export class Cookies {
     }
     index = url.indexOf('/', 1);
     if (index === -1) {
-      return '/';
+      return defaultValue;
     }
     index = url.lastIndexOf('/');
     if (index !== 0) {
@@ -626,7 +627,7 @@ export class Cookies {
         domain = parts.join('.');
       }
     }
-    let index = cookieDomain.indexOf(domain);
+    const index = cookieDomain.indexOf(domain);
     if (index === -1) {
       return false;
     }

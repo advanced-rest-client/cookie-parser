@@ -1,9 +1,7 @@
-const assert = require('chai').assert;
-const {Cookies} = require('../');
+import { assert } from '@open-wc/testing';
+import { Cookies } from '../cookie-parser.js';
 
 describe('Parse cookies with base URL', function() {
-  this.timeout(2500);
-
   let httpStr = 'rememberme=1; domain=foo.com;';
   httpStr += ' path=/; ssid=Hy1t5e#oj21.876aak;';
   const baseUrl = 'http://bar.com/';

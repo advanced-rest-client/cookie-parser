@@ -1,5 +1,5 @@
-const assert = require('chai').assert;
-const {Cookies} = require('../');
+import { assert } from '@open-wc/testing';
+import { Cookies } from '../cookie-parser.js';
 
 describe('Parse cookies', function() {
   let httpStr = 'rememberme=1; domain=foo.com;';
