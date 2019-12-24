@@ -40,7 +40,7 @@ export class Cookie {
    *
    * @param {Stirng} name Cookie name
    * @param {Stirng} value Cookie value
-   * @param {Object} opts Additional cookie attributes:
+   * @param {Object=} opts Additional cookie attributes:
    * - max-age {Number}
    * - expires {Number}
    * - domain {String}
@@ -48,14 +48,13 @@ export class Cookie {
    * - secure {Boolean}
    * - httpOnly {Boolean}
    */
-  constructor(name, value, opts) {
+  constructor(name, value, opts={}) {
     if (!fieldContentRegExp.test(name)) {
       throw new TypeError('Argument `name` is invalid');
     }
     if (value && !fieldContentRegExp.test(value)) {
       throw new TypeError('Argument `value` is invalid');
     }
-    opts = opts || {};
     if (opts.path && !fieldContentRegExp.test(opts.path)) {
       throw new TypeError('Option `path` is invalid');
     }
