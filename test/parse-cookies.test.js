@@ -55,10 +55,9 @@ describe('Parse cookies', () => {
   it('should set expires from max-age', () => {
     const str = 'rememberme=1; domain=foo.com; path=/; max-age=100';
     const parser = new Cookies(str);
-    const now = Date.now();
+    const future = Date.now() + 100000;
     const cookie = parser.cookies[0];
-    assert.isAtLeast(cookie.expires, now + 100000);
-    assert.isAtMost(cookie.expires, now + 101000);
+    assert.approximately(cookie.expires, future, 10);
     assert.isTrue(cookie.persistent, 'The persistent flag is not set to true');
     cookie.maxAge = 0;
     assert.equal(
