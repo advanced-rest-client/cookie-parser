@@ -275,3 +275,53 @@
  [25e1c00](https://github.com/advanced-rest-client/cookie-parser/commit/25e1c0025938bcc8464d69a9d87a3704fc15961a) by jarrodek
 
 
+<a name="3.2.0"></a>
+## [3.2.0](https://github.com/advanced-rest-client/cookie-parser/compare/2.0.1...3.2.0) (2020-05-23)
+
+### Build
+
+* bumping version [51c3e64](https://github.com/advanced-rest-client/cookie-parser/commit/51c3e64a67d8fb47d4f38eeba266b0ea095c4049) by Pawel Psztyc
+* bumping version [69f2d88](https://github.com/advanced-rest-client/cookie-parser/commit/69f2d88a436e293c5b48c17d2eb0d835d3a21752) by Pawel Psztyc
+
+
+### Update
+
+* [ci skip] automated merge master->stage. syncing main branches [57e8f26](https://github.com/advanced-rest-client/cookie-parser/commit/57e8f267d224933d929957d1ef0ac77a6c2305a1) by Ci agent
+* [ci skip] automated merge master->stage. syncing main branches [9466c69](https://github.com/advanced-rest-client/cookie-parser/commit/9466c6941753abfa3025d0f857c6f7505fbd409b) by Ci agent
+* removing unused packages [301aa0d](https://github.com/advanced-rest-client/cookie-parser/commit/301aa0dad03a2cdf232b2dce932ff74a88dca573) by Pawel Psztyc
+* updating lock file [5cb57f4](https://github.com/advanced-rest-client/cookie-parser/commit/5cb57f48114083fdb8912b222ec6977730be445c) by Pawel Psztyc
+* adding types [ca0e198](https://github.com/advanced-rest-client/cookie-parser/commit/ca0e198839964d61cece8eda266cc77f71aaab1f) by Pawel Psztyc
+* updating dependencies and renaming main file [a841761](https://github.com/advanced-rest-client/cookie-parser/commit/a8417618573af0293e6e44f1b8cad582e1b749b9) by Pawel Psztyc
+* upgrading project, adding more tests, fixing issues [f25d909](https://github.com/advanced-rest-client/cookie-parser/commit/f25d909ca702151415da24e49937d27cb7bd765b) by Pawel Psztyc
+
+
+### Documentation
+
+* updating readme file [f78ecd2](https://github.com/advanced-rest-client/cookie-parser/commit/f78ecd289f0461377a0cc93292c88540dd90ab8c) by Pawel
+
+
+### Refactor
+
+* upgrading to open-wc standards [af79a8f](https://github.com/advanced-rest-client/cookie-parser/commit/af79a8f6e3c621a7205d3a45fed6390a16d89553) by Pawel
+
+
+### Testing
+
+* adding  assert function [202e4b7](https://github.com/advanced-rest-client/cookie-parser/commit/202e4b790d8e75b4d7bb42438156fd2944dbf30c) by Pawel
+* updating SL and travis config [91e1719](https://github.com/advanced-rest-client/cookie-parser/commit/91e1719a8e49971a2781d79165613abb7c94f50b) by Pawel Psztyc
+
+
+### Other
+
+* Update: Restoring previous mocha version due to tests errors
+ [0cf8774](https://github.com/advanced-rest-client/cookie-parser/commit/0cf877412bd48b82771db3f52201a1613d0e1640) by Pawel
+* Update: Upgrading dependencies
+ [454b0fe](https://github.com/advanced-rest-client/cookie-parser/commit/454b0fe13d6f38f2d564ca98d0507b05bc553d5e) by Pawel
+* Update: Updating node version for travis
+ [f6f02e9](https://github.com/advanced-rest-client/cookie-parser/commit/f6f02e94d8d3e0eb005cc2007bff5662155de701) by Pawel
+* Update: Removing FF from local tests due to unknown WCT error
+ [376119c](https://github.com/advanced-rest-client/cookie-parser/commit/376119c7d01bbc1ed4c2e09da79597c90bc3a8c1) by Pawel
+* Breaking: Upgrading to ES6 modules
+ [5527fbd](https://github.com/advanced-rest-client/cookie-parser/commit/5527fbd0fb39fc17efdf57b7127624b854905100) by Pawel
+
+
