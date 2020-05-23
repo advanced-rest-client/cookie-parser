@@ -1,31 +1,24 @@
 [![Published on NPM](https://img.shields.io/npm/v/@advanced-rest-client/cookie-parser.svg)](https://www.npmjs.com/package/@advanced-rest-client/cookie-parser)
 
-[![Build Status](https://travis-ci.org/advanced-rest-client/cookie-parser.svg?branch=stage)](https://travis-ci.org/advanced-rest-client/cookie-parser)
-
-[![Published on webcomponents.org](https://img.shields.io/badge/webcomponents.org-published-blue.svg)](https://www.webcomponents.org/element/advanced-rest-client/cookie-parser)
+[![Build Status](https://travis-ci.com/advanced-rest-client/cookie-parser.svg)](https://travis-ci.com/advanced-rest-client/cookie-parser)
 
 # cookie-parser
 
-A JavaScript cookie parser for HTTP clients.
-Works in the browser as ES6 module or in node.
+A JavaScript cookie parser for HTTP clients. Works in the browser as ES6 module or in NodeJS.
 
 ```javascript
-import {Cookies} from './node_modules/@advanced-rest-client/cookie-parser/cookie-parser.js';
+import { Cookies } from '@advanced-rest-client/cookie-parser';
 const parser = new Cookies('rememberme=1; domain=foo.com; path=/; ssid=Hy1t5e#oj21.876aak;', 'http://bar.com/');
 console.log(parser.cookies);
 ```
 
-In node:
+In Node:
 
 ```javascript
 const {Cookies} = require('@advanced-rest-client/cookie-parser');
 const parser = new Cookies('rememberme=1; domain=foo.com; path=/; ssid=Hy1t5e#oj21.876aak;', 'http://bar.com/');
 console.log(parser.cookies);
 ```
-
-### API components
-
-This components is a part of [API components ecosystem](https://elements.advancedrestclient.com/)
 
 ## Usage
 
@@ -34,53 +27,56 @@ This components is a part of [API components ecosystem](https://elements.advance
 npm install --save @advanced-rest-client/cookie-parser
 ```
 
-### In an html file
+### Parsing cookie header
 
-```html
-<html>
-  <head></head>
-  <body>
-    <script>
-    import {Cookies} from './node_modules/@advanced-rest-client/cookie-parser/cookie-parser.js';
-    const parser = new Cookies('rememberme=1; domain=foo.com; path=/; ssid=Hy1t5e#oj21.876aak;', 'http://bar.com/');
-    console.log(parser.cookies);
-    </script>
-  </body>
-</html>
+It parses `set-cookie` header received from the server and produces a Cookie object.
+
+```javascript
+import { Cookies } from '@advanced-rest-client/cookie-parser';
+const parser = new Cookies('rememberme=1; domain=foo.com; path=/; ssid=Hy1t5e#oj21.876aak;', 'http://bar.com/');
+console.log(parser.cookies);
 ```
 
-### In a Polymer 3 element
+which is equivalent to:
 
-```js
-import {PolymerElement, html} from './node_modules/@polymer/polymer';
-import {Cookies} from './node_modules/@advanced-rest-client/cookie-parser/cookie-parser.js';
-
-class SampleElement extends PolymerElement {
-  static get cookies() {
-    const parser = new Cookies('rememberme=1; domain=foo.com; path=/; ssid=Hy1t5e#oj21.876aak;', 'http://bar.com/');
-    return parser.cookies;
-  }
-}
-customElements.define('sample-element', SampleElement);
+```javascript
+const cookies = Cookies.parse('...');
 ```
 
-### Installation
+### Manipulating cookies
+
+The filter function filters out cookies that should not be considered for given URL. This is defined in [https://tools.ietf.org/html/rfc6265](https://tools.ietf.org/html/rfc6265).
+
+```javascript
+const instance = new Cookies('a=b; domain=foo.com; path=/;', 'http://sub.foo.com/');
+const removed = instance.filter();
+console.log(removed); // has the cookies because domain does not match
+```
+
+To clear expired cookies just call `clearExpired()` function.
+
+```javascript
+const instance = new Cookies('a=b; expires=0;', 'http://sub.foo.com/');
+// wait a second here, then
+const removed = instance.filter();
+console.log(removed); // the cookie expired
+```
+
+## Development
 
 ```sh
 git clone https://github.com/advanced-rest-client/cookie-parser
-cd api-url-editor
+cd cookie-parser
 npm install
-npm install -g polymer-cli
 ```
 
 ### Running the demo locally
 
 ```sh
-polymer serve --npm
-open http://127.0.0.1:<port>/demo/
+npm start
 ```
 
 ### Running the tests
 ```sh
-polymer test --npm
+npm test
 ```
