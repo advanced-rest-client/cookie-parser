@@ -1,17 +1,17 @@
 import { assert } from '@open-wc/testing';
 import { Cookie } from '../cookie-parser.js';
 
-describe('Cookie', function() {
+describe('Cookie', () => {
   describe('Basics', () => {
     const name = 'c-name';
     const value = 'c-value';
 
-    it('Cookie is not persistant when created without expiry time', function() {
+    it('Cookie is not persistant when created without expiry time', () => {
       const instance = new Cookie(name, value);
       assert.isFalse(instance.persistent);
     });
 
-    it('Cookie has the biggest possible expiry date', function() {
+    it('Cookie has the biggest possible expiry date', () => {
       const instance = new Cookie(name, value);
       const compare = new Date(8640000000000000).getTime();
       assert.equal(instance.expires, compare);
@@ -29,21 +29,21 @@ describe('Cookie', function() {
 
     it('Sets expires from max-age property', () => {
       const instance = new Cookie(name, value, {
-        'max-age': 100
+        'max-age': 100,
       });
       assert.equal(instance.expires, Date.now() + 100000);
     });
 
     it('Max-age sets cookie persistent', () => {
       const instance = new Cookie(name, value, {
-        'max-age': 100
+        'max-age': 100,
       });
       assert.isTrue(instance.persistent);
     });
 
-    it('Negative max-age sets lowest possible expiry date', function() {
+    it('Negative max-age sets lowest possible expiry date', () => {
       const instance = new Cookie(name, value, {
-        'max-age': -100
+        'max-age': -100,
       });
       const compare = new Date(-8640000000000000).getTime();
       assert.equal(instance.expires, compare);
@@ -55,9 +55,9 @@ describe('Cookie', function() {
       assert.equal(result.indexOf('c-name=c-value; expires='), 0);
     });
   });
-
+  /* eslint-disable no-new */
   describe('constructor()', () => {
-    const invalid = 'test' + String.fromCharCode(0x1F);
+    const invalid = `test${String.fromCharCode(0x1f)}`;
     const name = 'test-cookie';
     const value = 'test-value';
 
@@ -76,7 +76,7 @@ describe('Cookie', function() {
     it('throws an error for invalid path', () => {
       assert.throws(() => {
         new Cookie(name, value, {
-          path: invalid
+          path: invalid,
         });
       });
     });
@@ -84,7 +84,7 @@ describe('Cookie', function() {
     it('throws an error for invalid domain', () => {
       assert.throws(() => {
         new Cookie(name, value, {
-          domain: invalid
+          domain: invalid,
         });
       });
     });
@@ -96,7 +96,7 @@ describe('Cookie', function() {
 
     it('sets "max-age" as maxAge', () => {
       const instance = new Cookie(name, value, {
-        'max-age': 0
+        'max-age': 0,
       });
       assert.equal(instance.maxAge, 0);
       assert.equal(instance['max-age'], 0);
@@ -104,7 +104,7 @@ describe('Cookie', function() {
 
     it('sets "expires" from property', () => {
       const instance = new Cookie(name, value, {
-        expires: 10
+        expires: 10,
       });
       assert.equal(instance.expires, 10);
     });
@@ -116,7 +116,7 @@ describe('Cookie', function() {
 
     it('sets "domain" from property', () => {
       const instance = new Cookie(name, value, {
-        domain: 'api.com'
+        domain: 'api.com',
       });
       assert.equal(instance.domain, 'api.com');
     });
@@ -128,21 +128,21 @@ describe('Cookie', function() {
 
     it('sets "path" from property', () => {
       const instance = new Cookie(name, value, {
-        path: '/'
+        path: '/',
       });
       assert.equal(instance.path, '/');
     });
 
     it('sets "secure" from property', () => {
       const instance = new Cookie(name, value, {
-        secure: true
+        secure: true,
       });
       assert.isTrue(instance.secure);
     });
 
     it('sets "httpOnly" from property', () => {
       const instance = new Cookie(name, value, {
-        httpOnly: true
+        httpOnly: true,
       });
       assert.isTrue(instance.httpOnly);
     });
@@ -217,7 +217,7 @@ describe('Cookie', function() {
     });
 
     it('sets persistent flag', () => {
-      instance.expires = Date.now();;
+      instance.expires = Date.now();
       assert.isTrue(instance.persistent);
     });
   });
@@ -260,7 +260,8 @@ describe('Cookie', function() {
 
   describe('toHeader()', () => {
     let instance;
-    const base = 'test-name=test-value; expires=Sat, 13 Sep 275760 00:00:00 GMT';
+    const base =
+      'test-name=test-value; expires=Sat, 13 Sep 275760 00:00:00 GMT';
     beforeEach(() => {
       instance = new Cookie('test-name', 'test-value');
     });
@@ -273,19 +274,19 @@ describe('Cookie', function() {
     it('adds path', () => {
       instance.path = '/api';
       const result = instance.toHeader();
-      assert.equal(result, base + '; path=/api');
+      assert.equal(result, `${base}; path=/api`);
     });
 
     it('adds domain', () => {
       instance.domain = 'api.com';
       const result = instance.toHeader();
-      assert.equal(result, base + '; domain=api.com');
+      assert.equal(result, `${base}; domain=api.com`);
     });
 
     it('adds httpOnly', () => {
       instance.httpOnly = true;
       const result = instance.toHeader();
-      assert.equal(result, base + '; httpOnly=true');
+      assert.equal(result, `${base}; httpOnly=true`);
     });
   });
 

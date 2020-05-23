@@ -1,7 +1,7 @@
 import { assert } from '@open-wc/testing';
 import { Cookies } from '../cookie-parser.js';
 
-describe('Cookies', function() {
+describe('Cookies', () => {
   let httpStr = 'rememberme=1; domain=foo.com;';
   httpStr += ' path=/; ssid=Hy1t5e#oj21.876aak;';
   const baseUrl = 'http://bar.com/';
@@ -60,122 +60,147 @@ describe('Cookies', function() {
     });
   });
 
-  describe('_matchDomain()', () => {
+  describe('toString()', () => {
     let instance;
     beforeEach(() => {
-      instance = new Cookies();
+      instance = new Cookies(httpStr, baseUrl);
     });
 
-    it('returns false when no url', () => {
-      assert.isFalse(instance._matchDomain('.api.com'));
+    it('returns a string', () => {
+      const result = instance.toString();
+      assert.typeOf(result, 'string');
     });
 
-    it('returns false when no argument', () => {
-      instance.url = baseUrl;
-      assert.isFalse(instance._matchDomain(''));
+    it('has full server header ', () => {
+      const result = instance.toString();
+      assert.include(
+        result,
+        'rememberme=1; expires=Sat, 13 Sep 275760 00:00:00 GMT; path=/; domain=foo.com;',
+        'has complex cookie'
+      );
+      assert.include(
+        result,
+        'ssid=Hy1t5e#oj21.876aak; expires=',
+        'has simple cookie'
+      );
     });
 
-    it('returns true when domain are the same', () => {
-      instance.url = baseUrl;
-      assert.isTrue(instance._matchDomain('bar.com'));
-    });
-
-    it('returns true when dot in argument and url is subdomain', () => {
-      instance.url = 'http://test.bar.com/';
-      assert.isTrue(instance._matchDomain('.bar.com'));
-    });
-
-    it('returns false when dot in argument and url is deep subdomain', () => {
-      instance.url = 'http://other.test.bar.com/';
-      assert.isFalse(instance._matchDomain('.bar.com'));
+    it('has client header ', () => {
+      const result = instance.toString(true);
+      assert.include(result, 'rememberme=1; ssid=Hy1t5e#oj21.876aak');
     });
   });
 
-  describe('_matchPath()', () => {
-    let instance;
-    beforeEach(() => {
-      instance = new Cookies();
+  describe('filter()', () => {
+    const cookies = [
+      'a=b; domain=foo.com; path=/;',
+      'c=d; domain=foo.com; path=/test/path;',
+      'e=f; domain=bar.com; path=/;',
+      'g=h; domain=bar.com; path=/test/path;',
+      'i=j; domain=sub.bar.com; path=/;',
+      'k=l; domain=sub.bar.com; path=/test/path;',
+      'm=n;',
+    ];
+
+    it('returns empty array when no URL', () => {
+      const str = cookies.slice(0, 4).join(' ');
+      const instance = new Cookies(str);
+      const result = instance.filter();
+      assert.deepEqual(result, []);
     });
 
-    it('returns false when no url', () => {
-      assert.isFalse(instance._matchPath('/'));
+    it('removes cookies that does not match the domain', () => {
+      const str = cookies.slice(0, 4).join(' ');
+      const instance = new Cookies(str, 'http://foo.com/');
+      instance.filter();
+      assert.lengthOf(instance.cookies, 1);
+      assert.equal(instance.cookies[0].name, 'a');
     });
 
-    it('returns true when no argument', () => {
-      instance.url = baseUrl;
-      assert.isTrue(instance._matchPath(''));
+    it('returns removed cookies', () => {
+      const str = cookies.slice(0, 4).join(' ');
+      const instance = new Cookies(str, 'http://foo.com/');
+      const result = instance.filter();
+      assert.lengthOf(result, 3);
+      assert.equal(result[0].name, 'c');
+      assert.equal(result[1].name, 'e');
+      assert.equal(result[2].name, 'g');
     });
 
-    it('returns true when paths are the same', () => {
-      instance.url = baseUrl;
-      assert.isTrue(instance._matchPath('/'));
+    it('removes cookies when path does not match (sub path)', () => {
+      const str = cookies.slice(0, 2).join(' ');
+      const instance = new Cookies(str, 'http://foo.com/');
+      const result = instance.filter();
+      assert.lengthOf(result, 1);
+      assert.equal(result[0].name, 'c');
     });
 
-    it('returns true when URL has single separator', () => {
-      instance.url = baseUrl + 'test';
-      assert.isTrue(instance._matchPath('/'));
+    it('keeps cookies for the parent path', () => {
+      const str = cookies.slice(0, 2).join(' ');
+      const instance = new Cookies(str, 'http://foo.com/test/path/');
+      const result = instance.filter();
+      assert.lengthOf(result, 0);
+      assert.lengthOf(instance.cookies, 2);
     });
 
-    it('returns true when URL has deep path that is a match', () => {
-      instance.url = baseUrl + 'test/other';
-      assert.isTrue(instance._matchPath('/'));
+    it('removes cookies for different path', () => {
+      const str = cookies.slice(0, 2).join(' ');
+      const instance = new Cookies(str, 'http://foo.com/other/');
+      const result = instance.filter();
+      assert.lengthOf(result, 1);
+      assert.lengthOf(instance.cookies, 1);
+      assert.equal(result[0].name, 'c');
     });
 
-    it('returns false when argument path is different', () => {
-      instance.url = baseUrl + 'test/other';
-      assert.isFalse(instance._matchPath('/other'));
+    it('includes the trailing slash', () => {
+      const str = cookies.slice(0, 2).join(' ');
+      const instance = new Cookies(str, 'http://foo.com/other');
+      const result = instance.filter();
+      assert.lengthOf(result, 1);
+      assert.lengthOf(instance.cookies, 1);
+      assert.equal(result[0].name, 'c');
     });
 
-    it('returns false when argument path is is higher', () => {
-      instance.url = baseUrl + '/other';
-      assert.isFalse(instance._matchPath('/other/xyz'));
-    });
-  });
-
-  describe('_getPath()', () => {
-    let instance;
-    beforeEach(() => {
-      instance = new Cookies();
+    it('removes parent domain cookies', () => {
+      const str = cookies.slice(0, 2).join(' ');
+      const instance = new Cookies(str, 'http://sub.foo.com/');
+      const result = instance.filter();
+      assert.lengthOf(result, 2);
+      assert.lengthOf(instance.cookies, 0);
     });
 
-    it('returns default value when no argument', () => {
-      const result = instance._getPath();
-      assert.equal(result, '/');
+    it('keeps sub domain cookies', () => {
+      const str = cookies.slice(4, 6).join(' ');
+      const instance = new Cookies(str, 'http://sub.bar.com/');
+      const result = instance.filter();
+      assert.lengthOf(result, 1);
+      assert.equal(result[0].name, 'k');
+      assert.lengthOf(instance.cookies, 1);
     });
 
-    it('returns default value when no absolute URL', () => {
-      const result = instance._getPath('api.com');
-      assert.equal(result, '/');
+    it('add cookie path if missing', () => {
+      const instance = new Cookies(cookies[6], 'http://bar.com/');
+      instance.cookies[0].path = '';
+      const result = instance.filter();
+      assert.lengthOf(result, 0);
+      assert.equal(instance.cookies[0].path, '/');
     });
 
-    it('returns default value when no path after separator domain', () => {
-      const result = instance._getPath('https://api.com');
-      assert.equal(result, '/');
+    it('add cookie domain if missing', () => {
+      const instance = new Cookies(cookies[6], 'http://bar.com/');
+      instance.cookies[0].domain = '';
+      const result = instance.filter();
+      assert.lengthOf(result, 0);
+      assert.equal(instance.cookies[0].domain, 'bar.com');
     });
 
-    it('returns default value when no domain and path', () => {
-      const result = instance._getPath('https:///');
-      assert.equal(result, '/');
-    });
-
-    it('returns default value when no path after domain', () => {
-      const result = instance._getPath('https://api.com/');
-      assert.equal(result, '/');
-    });
-
-    it('returns path value', () => {
-      const result = instance._getPath('https://api.com/api/test/ignore');
-      assert.equal(result, '/api/test');
-    });
-
-    it('ignores query string', () => {
-      const result = instance._getPath('https://api.com/api/?a=b');
-      assert.equal(result, '/api');
-    });
-
-    it('ignores hash part of the url', () => {
-      const result = instance._getPath('https://api.com/api/#access_token=...');
-      assert.equal(result, '/api');
+    it('sets hostOnly if domain missing', () => {
+      const instance = new Cookies(cookies[6], 'http://bar.com/');
+      instance.cookies[0].domain = '';
+      instance.cookies[0].hostOnly = false;
+      const result = instance.filter();
+      assert.lengthOf(result, 0);
+      assert.isTrue(instance.cookies[0].hostOnly);
     });
   });
 });
